@@ -263,4 +263,24 @@ class ReactExoplayerViewManager(private val config: ReactExoplayerConfig) : View
         val controlsConfig = ControlsConfig.parse(controlsStyles)
         videoView.setControlsStyles(controlsConfig)
     }
+
+    @ReactProp(name = "tunneled", defaultBoolean = false)
+    fun setTunneled(videoView: ReactExoplayerView, tunneled: Boolean) {
+        videoView.setTunneled(tunneled)
+    }
+
+    @ReactProp(name = "audioPassthrough", defaultBoolean = false)
+    fun setAudioPassthrough(videoView: ReactExoplayerView, audioPassthrough: Boolean) {
+        videoView.setAudioPassthrough(audioPassthrough)
+    }
+
+    @ReactProp(name = "enableWorkarounds", defaultBoolean = false)
+    fun setEnableWorkarounds(videoView: ReactExoplayerView, enableWorkarounds: Boolean) {
+        videoView.setEnableWorkarounds(enableWorkarounds)
+    }
+
+    @ReactProp(name = "reportStatistics", defaultBoolean = false)
+    fun setReportStatistics(videoView: ReactExoplayerView, reportStatistics: Boolean) {
+        videoView.setReportStatistics(reportStatistics)
+    }
 }

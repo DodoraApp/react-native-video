@@ -314,6 +314,34 @@ export type OnAudioFocusChangedData = Readonly<{
   hasAudioFocus: boolean;
 }>;
 
+export type OnVideoStatisticsData = Readonly<{
+  videoMimeType?: string;
+  videoCodec?: string;
+  videoWidth?: Int32;
+  videoHeight?: Int32;
+  videoBitrate?: Int32;
+  videoFrameRate?: Float;
+  videoProfile?: Int32;
+  videoProfileName?: string;
+  videoLevel?: Int32;
+  videoLevelName?: string;
+  videoDecoder?: string;
+  audioMimeType?: string;
+  audioCodec?: string;
+  audioChannels?: Int32;
+  audioSampleRate?: Int32;
+  audioBitrate?: Int32;
+  audioDecoder?: string;
+  hdr?: Readonly<{
+    colorTransfer?: Int32;
+    colorTransferName?: string;
+    colorSpace?: Int32;
+    colorSpaceName?: string;
+    colorRange?: Int32;
+    colorRangeName?: string;
+  }>;
+}>;
+
 type ControlsStyles = Readonly<{
   hidePosition?: WithDefault<boolean, false>;
   hidePlayPause?: WithDefault<boolean, false>;
@@ -379,6 +407,10 @@ export interface VideoNativeProps extends ViewProps {
   bufferingStrategy?: BufferingStrategyType; // Android
   controlsStyles?: ControlsStyles; // Android
   disableAudioSessionManagement?: boolean; // iOS
+  tunneled?: WithDefault<boolean, false>; // Android
+  audioPassthrough?: WithDefault<boolean, false>; // Android
+  enableWorkarounds?: WithDefault<boolean, false>; // Android
+  reportStatistics?: WithDefault<boolean, false>; // Android
   onControlsVisibilityChange?: DirectEventHandler<OnControlsVisibilityChange>;
   onVideoLoad?: DirectEventHandler<OnLoadData>;
   onVideoLoadStart?: DirectEventHandler<OnLoadStartData>;
@@ -410,6 +442,7 @@ export interface VideoNativeProps extends ViewProps {
   onTextTracks?: DirectEventHandler<OnTextTracksData>; // android
   onTextTrackDataChanged?: DirectEventHandler<OnTextTrackDataChangedData>; // iOS
   onVideoTracks?: DirectEventHandler<OnVideoTracksData>; // android
+  onVideoStatistics?: DirectEventHandler<OnVideoStatisticsData>; // android
 }
 
 type NativeVideoComponentType = HostComponent<VideoNativeProps>;

@@ -36,6 +36,7 @@ import type {
   OnTimedMetadataData,
   OnVideoAspectRatioData,
   OnVideoErrorData,
+  OnVideoStatisticsData,
   OnVideoTracksData,
   VideoSrc,
 } from './specs/VideoNativeComponent';
@@ -134,6 +135,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
       onEnd,
       onBuffer,
       onBandwidthUpdate,
+      onVideoStatistics,
       onControlsVisibilityChange,
       onExternalPlaybackChange,
       onFullscreenPlayerWillPresent,
@@ -660,6 +662,13 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
       [onBandwidthUpdate],
     );
 
+    const _onVideoStatistics = useCallback(
+      (e: NativeSyntheticEvent<OnVideoStatisticsData>) => {
+        onVideoStatistics?.(e.nativeEvent);
+      },
+      [onVideoStatistics],
+    );
+
     const _onReceiveAdEvent = useCallback(
       (e: NativeSyntheticEvent<OnReceiveAdEventData>) => {
         onReceiveAdEvent?.(e.nativeEvent);
@@ -905,6 +914,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
           onVideoBandwidthUpdate={
             onBandwidthUpdate ? _onBandwidthUpdate : undefined
           }
+          onVideoStatistics={onVideoStatistics ? _onVideoStatistics : undefined}
           onTimedMetadata={onTimedMetadata ? _onTimedMetadata : undefined}
           onAudioTracks={onAudioTracks ? _onAudioTracks : undefined}
           onTextTracks={onTextTracks ? _onTextTracks : undefined}
