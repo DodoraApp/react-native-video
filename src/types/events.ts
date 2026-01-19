@@ -16,6 +16,7 @@ import type {
   OnTimedMetadataData,
   OnVideoAspectRatioData,
   OnVideoErrorData,
+  OnVideoStatisticsData,
   OnVideoTracksData,
   OnVolumeChangeData,
 } from '../specs/VideoNativeComponent';
@@ -267,4 +268,5 @@ export interface ReactVideoEvents {
   onTextTrackDataChanged?: (e: OnTextTrackDataChangedData) => void; // iOS
   onVideoTracks?: (e: OnVideoTracksData) => void; //Android
   onAspectRatio?: (e: OnVideoAspectRatioData) => void;
+  onVideoStatistics?: (e: OnVideoStatisticsData) => void; //Android
 }

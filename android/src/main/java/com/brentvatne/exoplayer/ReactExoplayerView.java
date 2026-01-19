@@ -39,10 +39,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
+import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Metadata;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
@@ -53,13 +55,16 @@ import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Util;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.HttpDataSource;
+import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.dash.DashUtil;
 import androidx.media3.exoplayer.dash.DefaultDashChunkSource;
@@ -80,6 +85,7 @@ import androidx.media3.exoplayer.ima.ImaAdsLoader;
 import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionMediaSource;
 import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionUriBuilder;
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import androidx.media3.exoplayer.rtsp.RtspMediaSource;
 import androidx.media3.exoplayer.smoothstreaming.DefaultSsChunkSource;
@@ -131,8 +137,10 @@ import com.brentvatne.receiver.PictureInPictureReceiver;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.ads.interactivemedia.v3.api.AdError;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
@@ -255,6 +263,10 @@ public class ReactExoplayerView extends FrameLayout implements
     private boolean controls = false;
 
     private boolean showNotificationControls = false;
+    private boolean tunneled = false;
+    private boolean audioPassthrough = false;
+    private boolean enableWorkarounds = false;
+    private boolean reportStatistics = false;
     // \ End props
 
     // React
@@ -712,11 +724,58 @@ public class ReactExoplayerView extends FrameLayout implements
         }
     }
 
+    public void setTunneled(boolean tunneled) {
+        this.tunneled = tunneled;
+        if (player != null && trackSelector != null) {
+            trackSelector.setParameters(trackSelector.buildUponParameters()
+                    .setTunnelingEnabled(tunneled)
+                    .build());
+        }
+    }
+
+    public void setAudioPassthrough(boolean audioPassthrough) {
+        if (this.audioPassthrough != audioPassthrough) {
+            this.audioPassthrough = audioPassthrough;
+            if (player != null) {
+                player.release();
+                player = null;
+                initializePlayer();
+            }
+        }
+    }
+
+    public void setEnableWorkarounds(boolean enableWorkarounds) {
+        if (this.enableWorkarounds != enableWorkarounds) {
+            this.enableWorkarounds = enableWorkarounds;
+            if (player != null) {
+                player.release();
+                player = null;
+                initializePlayer();
+            }
+        }
+    }
+
+    public void setReportStatistics(boolean reportStatistics) {
+        this.reportStatistics = reportStatistics;
+    }
+
     private void initializePlayerCore(ReactExoplayerView self) {
         ExoTrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
         self.trackSelector = new DefaultTrackSelector(getContext(), videoTrackSelectionFactory);
-        self.trackSelector.setParameters(trackSelector.buildUponParameters()
-                .setMaxVideoBitrate(maxBitRate == 0 ? Integer.MAX_VALUE : maxBitRate));
+        DefaultTrackSelector.Parameters.Builder parametersBuilder = trackSelector.buildUponParameters()
+                .setMaxVideoBitrate(maxBitRate == 0 ? Integer.MAX_VALUE : maxBitRate)
+                .setTunnelingEnabled(tunneled);
+
+        if (audioPassthrough) {
+            parametersBuilder.setPreferredAudioMimeTypes(
+                    MimeTypes.AUDIO_TRUEHD,
+                    MimeTypes.AUDIO_DTS_HD,
+                    MimeTypes.AUDIO_DTS,
+                    MimeTypes.AUDIO_E_AC3
+            );
+        }
+
+        self.trackSelector.setParameters(parametersBuilder);
 
         DefaultAllocator allocator = new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
         RNVLoadControl loadControl = new RNVLoadControl(
@@ -730,11 +789,14 @@ public class ReactExoplayerView extends FrameLayout implements
             this.bandwidthMeter = config.getBandwidthMeter();
         }
 
-        DefaultRenderersFactory renderersFactory =
-                new DefaultRenderersFactory(getContext())
-                        .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF)
-                        .setEnableDecoderFallback(true)
-                        .forceEnableMediaCodecAsynchronousQueueing();
+        ReactRenderersFactory renderersFactory = new ReactRenderersFactory(getContext(), enableWorkarounds);
+        renderersFactory
+                .setExtensionRendererMode(
+                        audioPassthrough
+                                ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+                                : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+                .setEnableDecoderFallback(true)
+                .forceEnableMediaCodecAsynchronousQueueing();
 
         DefaultMediaSourceFactory mediaSourceFactory;
         
@@ -750,7 +812,8 @@ public class ReactExoplayerView extends FrameLayout implements
             mediaSourceFactory.setDataSourceFactory(RNVSimpleCache.INSTANCE.getCacheFactory(buildHttpDataSourceFactory(true)));
         }
 
-        player = new ExoPlayer.Builder(getContext(), renderersFactory)
+        player = new ExoPlayer.Builder(getContext())
+                .setRenderersFactory(renderersFactory)
                 .setTrackSelector(self.trackSelector)
                 .setBandwidthMeter(bandwidthMeter)
                 .setLoadControl(loadControl)
@@ -762,9 +825,94 @@ public class ReactExoplayerView extends FrameLayout implements
         player.setVolume(muted ? 0.f : audioVolume * 1);
         exoPlayerView.setPlayer(player);
 
+        // TODO player.setVideoChangeFrameRateStrategy();
+
         audioBecomingNoisyReceiver.setListener(self);
         pictureInPictureReceiver.setListener();
         bandwidthMeter.addEventListener(new Handler(), self);
+
+        // TODO move to separate file
+        // Add analytics listener for statistics if requested
+        player.addAnalyticsListener(new AnalyticsListener() {
+
+            @Override
+            public void onAudioDecoderInitialized(EventTime eventTime, String decoderName, long initializedTimestampMs, long initializationDurationMs) {
+                if (!reportStatistics) {
+                    return;
+                }
+                WritableMap stats = Arguments.createMap();
+                stats.putString("audioDecoder", decoderName);
+                eventEmitter.onVideoStatistics.invoke(stats);
+            }
+
+            @Override
+            public void onVideoDecoderInitialized(EventTime eventTime, String decoderName, long initializedTimestampMs, long initializationDurationMs) {
+                if (!reportStatistics) {
+                    return;
+                }
+                WritableMap stats = Arguments.createMap();
+                stats.putString("videoDecoder", decoderName);
+                eventEmitter.onVideoStatistics.invoke(stats);
+            }
+
+            @Override
+            public void onAudioInputFormatChanged(EventTime eventTime, Format audioFormat, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
+                if (!reportStatistics) {
+                    return;
+                }
+                WritableMap stats = Arguments.createMap();
+
+                stats.putString("audioMimeType", audioFormat.sampleMimeType);
+                stats.putString("audioCodec", audioFormat.codecs);
+                stats.putInt("audioChannels", audioFormat.channelCount);
+                stats.putInt("audioSampleRate", audioFormat.sampleRate);
+                stats.putInt("audioBitrate", audioFormat.bitrate);
+
+                eventEmitter.onVideoStatistics.invoke(stats);
+            }
+
+            @Override
+            public void onVideoInputFormatChanged(EventTime eventTime, Format videoFormat, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
+                if (!reportStatistics) {
+                    return;
+                }
+                WritableMap stats = Arguments.createMap();
+
+                stats.putString("videoMimeType", videoFormat.sampleMimeType);
+                stats.putString("videoCodec", videoFormat.codecs);
+                stats.putInt("videoWidth", videoFormat.width);
+                stats.putInt("videoHeight", videoFormat.height);
+                stats.putInt("videoBitrate", videoFormat.bitrate);
+                stats.putDouble("videoFrameRate", videoFormat.frameRate);
+
+                if (videoFormat.colorInfo != null) {
+                    ColorInfo colorInfo = videoFormat.colorInfo;
+                    WritableMap hdrStats = Arguments.createMap();
+                    hdrStats.putInt("colorTransfer", colorInfo.colorTransfer);
+                    hdrStats.putString("colorTransferName", VideoMetadataUtils.getColorTransferName(colorInfo.colorTransfer));
+                    hdrStats.putInt("colorSpace", colorInfo.colorSpace);
+                    hdrStats.putString("colorSpaceName", VideoMetadataUtils.getColorSpaceName(colorInfo.colorSpace));
+                    hdrStats.putInt("colorRange", colorInfo.colorRange);
+                    hdrStats.putString("colorRangeName", VideoMetadataUtils.getColorRangeName(colorInfo.colorRange));
+                    stats.putMap("hdr", hdrStats);
+                }
+
+                try {
+                    android.util.Pair<Integer, Integer> profileLevel = MediaCodecUtil.getCodecProfileAndLevel(videoFormat);
+                    if (profileLevel != null) {
+                        stats.putInt("videoProfile", profileLevel.first);
+                        stats.putString("videoProfileName", VideoMetadataUtils.getProfileName(videoFormat.sampleMimeType, profileLevel.first));
+                        stats.putInt("videoLevel", profileLevel.second);
+                        stats.putString("videoLevelName", VideoMetadataUtils.getLevelName(videoFormat.sampleMimeType, profileLevel.second));
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+
+                eventEmitter.onVideoStatistics.invoke(stats);
+            }
+        });
+
         setPlayWhenReady(!isPaused);
         playerNeedsSource = true;
 
