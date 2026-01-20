@@ -315,31 +315,28 @@ export type OnAudioFocusChangedData = Readonly<{
 }>;
 
 export type OnVideoStatisticsData = Readonly<{
-  videoMimeType?: string;
-  videoCodec?: string;
-  videoWidth?: Int32;
-  videoHeight?: Int32;
-  videoBitrate?: Int32;
-  videoFrameRate?: Float;
-  videoProfile?: Int32;
-  videoProfileName?: string;
-  videoLevel?: Int32;
-  videoLevelName?: string;
+  /** Human-friendly stream type derived from content type (e.g. HLS/DASH/Progressive). */
+  streamType?: string;
+  /** Human-friendly container name with MIME in parentheses when known (e.g. "MP4 (video/mp4)"). */
+  container?: string;
+  /** Human-friendly codec names with MIME in parentheses when known (e.g. "HEVC (video/hevc)"). */
+  videoCodecName?: string;
+  audioCodecName?: string;
+  /** Human-friendly values (e.g. "1920×1080", "29.97 fps"). */
+  resolution?: string;
+  frameRate?: string;
+  /** Combined bitrate (e.g. "Video 4.20 Mbps, Audio 192 kbps"). */
+  bitrate?: string;
+  /** Human-friendly profile/level summary (e.g. "HDR10 (PQ), Main 10@Main Tier 5.1"). */
+  profileLevel?: string;
+  /** Human-friendly decoded format summaries. */
+  decodedVideoFormat?: string;
+  decodedAudioFormat?: string;
+  /** Human-friendly channel display (e.g. "6 (5.1)") and layout. */
+  decodedAudioChannels?: string;
+  audioLayout?: string;
   videoDecoder?: string;
-  audioMimeType?: string;
-  audioCodec?: string;
-  audioChannels?: Int32;
-  audioSampleRate?: Int32;
-  audioBitrate?: Int32;
   audioDecoder?: string;
-  hdr?: Readonly<{
-    colorTransfer?: Int32;
-    colorTransferName?: string;
-    colorSpace?: Int32;
-    colorSpaceName?: string;
-    colorRange?: Int32;
-    colorRangeName?: string;
-  }>;
 }>;
 
 type ControlsStyles = Readonly<{
