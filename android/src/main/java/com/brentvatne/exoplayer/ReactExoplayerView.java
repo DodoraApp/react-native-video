@@ -267,6 +267,7 @@ public class ReactExoplayerView extends FrameLayout implements
     private boolean audioPassthrough = false;
     private boolean enableWorkarounds = false;
     private boolean reportStatistics = false;
+    private RNVPlayerStatisticsListener statisticsListener;
     // \ End props
 
     // React
@@ -757,6 +758,9 @@ public class ReactExoplayerView extends FrameLayout implements
 
     public void setReportStatistics(boolean reportStatistics) {
         this.reportStatistics = reportStatistics;
+        if (statisticsListener != null) {
+            statisticsListener.setEnabled(reportStatistics);
+        }
     }
 
     private void initializePlayerCore(ReactExoplayerView self) {
@@ -831,87 +835,10 @@ public class ReactExoplayerView extends FrameLayout implements
         pictureInPictureReceiver.setListener();
         bandwidthMeter.addEventListener(new Handler(), self);
 
-        // TODO move to separate file
-        // Add analytics listener for statistics if requested
-        player.addAnalyticsListener(new AnalyticsListener() {
-
-            @Override
-            public void onAudioDecoderInitialized(EventTime eventTime, String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-                if (!reportStatistics) {
-                    return;
-                }
-                WritableMap stats = Arguments.createMap();
-                stats.putString("audioDecoder", decoderName);
-                eventEmitter.onVideoStatistics.invoke(stats);
-            }
-
-            @Override
-            public void onVideoDecoderInitialized(EventTime eventTime, String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-                if (!reportStatistics) {
-                    return;
-                }
-                WritableMap stats = Arguments.createMap();
-                stats.putString("videoDecoder", decoderName);
-                eventEmitter.onVideoStatistics.invoke(stats);
-            }
-
-            @Override
-            public void onAudioInputFormatChanged(EventTime eventTime, Format audioFormat, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-                if (!reportStatistics) {
-                    return;
-                }
-                WritableMap stats = Arguments.createMap();
-
-                stats.putString("audioMimeType", audioFormat.sampleMimeType);
-                stats.putString("audioCodec", audioFormat.codecs);
-                stats.putInt("audioChannels", audioFormat.channelCount);
-                stats.putInt("audioSampleRate", audioFormat.sampleRate);
-                stats.putInt("audioBitrate", audioFormat.bitrate);
-
-                eventEmitter.onVideoStatistics.invoke(stats);
-            }
-
-            @Override
-            public void onVideoInputFormatChanged(EventTime eventTime, Format videoFormat, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-                if (!reportStatistics) {
-                    return;
-                }
-                WritableMap stats = Arguments.createMap();
-
-                stats.putString("videoMimeType", videoFormat.sampleMimeType);
-                stats.putString("videoCodec", videoFormat.codecs);
-                stats.putInt("videoWidth", videoFormat.width);
-                stats.putInt("videoHeight", videoFormat.height);
-                stats.putInt("videoBitrate", videoFormat.bitrate);
-                stats.putDouble("videoFrameRate", videoFormat.frameRate);
-
-                if (videoFormat.colorInfo != null) {
-                    ColorInfo colorInfo = videoFormat.colorInfo;
-                    WritableMap hdrStats = Arguments.createMap();
-                    hdrStats.putInt("colorTransfer", colorInfo.colorTransfer);
-                    hdrStats.putString("colorTransferName", VideoMetadataUtils.getColorTransferName(colorInfo.colorTransfer));
-                    hdrStats.putInt("colorSpace", colorInfo.colorSpace);
-                    hdrStats.putString("colorSpaceName", VideoMetadataUtils.getColorSpaceName(colorInfo.colorSpace));
-                    hdrStats.putInt("colorRange", colorInfo.colorRange);
-                    hdrStats.putString("colorRangeName", VideoMetadataUtils.getColorRangeName(colorInfo.colorRange));
-                    stats.putMap("hdr", hdrStats);
-                }
-
-                try {
-                    android.util.Pair<Integer, Integer> profileLevel = MediaCodecUtil.getCodecProfileAndLevel(videoFormat);
-                    if (profileLevel != null) {
-                        stats.putInt("videoProfile", profileLevel.first);
-                        stats.putString("videoProfileName", VideoMetadataUtils.getProfileName(videoFormat.sampleMimeType, profileLevel.first));
-                        stats.putInt("videoLevel", profileLevel.second);
-                        stats.putString("videoLevelName", VideoMetadataUtils.getLevelName(videoFormat.sampleMimeType, profileLevel.second));
-                    }
-                } catch (Exception e) {
-                    // ignore
-                }
-
-                eventEmitter.onVideoStatistics.invoke(stats);
-            }
-        });
+        // Add analytics listener for statistics
+        statisticsListener = new RNVPlayerStatisticsListener(eventEmitter);
+        statisticsListener.setEnabled(reportStatistics);
+        player.addAnalyticsListener(statisticsListener);
 
         setPlayWhenReady(!isPaused);
         playerNeedsSource = true;
@@ -1160,6 +1087,11 @@ public class ReactExoplayerView extends FrameLayout implements
             type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
                     : uri.getLastPathSegment());
         }
+
+        if (statisticsListener != null) {
+            statisticsListener.reset();
+            statisticsListener.setStreamType(contentTypeToString(type));
+        }
         config.setDisableDisconnectError(this.disableDisconnectError);
 
         MediaItem.Builder mediaItemBuilder = new MediaItem.Builder()
@@ -1308,6 +1240,22 @@ public class ReactExoplayerView extends FrameLayout implements
         }
 
         return mediaSource;
+    }
+
+    private static String contentTypeToString(int type) {
+        switch (type) {
+            case CONTENT_TYPE_DASH:
+                return "DASH";
+            case CONTENT_TYPE_HLS:
+                return "HLS";
+            case CONTENT_TYPE_SS:
+                return "SmoothStreaming";
+            case CONTENT_TYPE_RTSP:
+                return "RTSP";
+            case CONTENT_TYPE_OTHER:
+            default:
+                return "Progressive";
+        }
     }
 
     @Nullable

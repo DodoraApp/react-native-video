@@ -1,38 +1,264 @@
 package com.brentvatne.exoplayer;
 
 import android.media.MediaCodecInfo.CodecProfileLevel;
+import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.MimeTypes;
+
+import java.util.Locale;
 
 public class VideoMetadataUtils {
 
-    public static String getColorSpaceName(@C.ColorSpace int colorSpace) {
-        switch (colorSpace) {
-            case C.COLOR_SPACE_BT601: return "BT.601";
-            case C.COLOR_SPACE_BT709: return "BT.709";
-            case C.COLOR_SPACE_BT2020: return "BT.2020";
-            case C.INDEX_UNSET: return "Unspecified";
-            default: return "Unknown (" + colorSpace + ")";
+    public static @Nullable String getContainerDisplayString(@Nullable String containerMimeType) {
+        if (TextUtils.isEmpty(containerMimeType)) {
+            return "Unknown";
+        }
+        String name;
+        switch (containerMimeType) {
+            case MimeTypes.APPLICATION_M3U8: // application/x-mpegURL
+            case "application/vnd.apple.mpegurl":
+                name = "HLS";
+                break;
+            case MimeTypes.APPLICATION_MPD: // application/dash+xml
+                name = "DASH";
+                break;
+            case "application/vnd.ms-sstr+xml":
+                name = "Smooth Streaming";
+                break;
+            case MimeTypes.VIDEO_MP4:
+            case MimeTypes.AUDIO_MP4:
+            case MimeTypes.APPLICATION_MP4:
+                name = "MP4";
+                break;
+            case MimeTypes.VIDEO_WEBM:
+            case MimeTypes.AUDIO_WEBM:
+                name = "WebM";
+                break;
+            case MimeTypes.VIDEO_MATROSKA:
+                name = "Matroska (MKV)";
+                break;
+            case MimeTypes.VIDEO_MP2T:
+                name = "MPEG-TS";
+                break;
+            case "video/quicktime":
+                name = "QuickTime (MOV)";
+                break;
+            default:
+                name = "Unknown";
+                break;
+        }
+        return name + " (" + containerMimeType + ")";
+    }
+
+    public static @Nullable String getCodecDisplayString(@Nullable String sampleMimeType) {
+        if (TextUtils.isEmpty(sampleMimeType)) {
+            return null;
+        }
+        String name;
+        switch (sampleMimeType) {
+            case MimeTypes.VIDEO_H264:
+                name = "H.264 (AVC)";
+                break;
+            case MimeTypes.VIDEO_H265:
+                name = "HEVC (H.265)";
+                break;
+            case MimeTypes.VIDEO_DOLBY_VISION:
+                name = "Dolby Vision";
+                break;
+            case MimeTypes.VIDEO_VP9:
+                name = "VP9";
+                break;
+            case MimeTypes.VIDEO_AV1:
+                name = "AV1";
+                break;
+            case MimeTypes.AUDIO_AAC:
+                name = "AAC";
+                break;
+            case MimeTypes.AUDIO_AC3:
+                name = "AC-3 (Dolby Digital)";
+                break;
+            case MimeTypes.AUDIO_E_AC3:
+                name = "E-AC-3 (Dolby Digital Plus)";
+                break;
+            case MimeTypes.AUDIO_E_AC3_JOC:
+                name = "Dolby Atmos (E-AC-3 JOC)";
+                break;
+            case MimeTypes.AUDIO_TRUEHD:
+                name = "Dolby TrueHD";
+                break;
+            case MimeTypes.AUDIO_DTS:
+                name = "DTS";
+                break;
+            case MimeTypes.AUDIO_DTS_HD:
+                name = "DTS-HD";
+                break;
+            case MimeTypes.AUDIO_OPUS:
+                name = "Opus";
+                break;
+            case MimeTypes.AUDIO_VORBIS:
+                name = "Vorbis";
+                break;
+            case MimeTypes.AUDIO_MPEG:
+                name = "MP3";
+                break;
+            case MimeTypes.AUDIO_FLAC:
+                name = "FLAC";
+                break;
+            case MimeTypes.AUDIO_RAW:
+                name = "PCM";
+                break;
+            default:
+                name = "Unknown";
+                break;
+        }
+        return name + " (" + sampleMimeType + ")";
+    }
+
+    public static @Nullable String getResolutionDisplayString(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return null;
+        }
+        return width + "×" + height;
+    }
+
+    public static @Nullable String getFrameRateDisplayString(float frameRate) {
+        if (frameRate <= 0f || Float.isNaN(frameRate)) {
+            return null;
+        }
+        // 29.97, 59.94, etc.
+        return String.format(Locale.US, "%.2f fps", frameRate);
+    }
+
+    public static @Nullable String getAudioLayoutDisplayString(int channelCount) {
+        if (channelCount <= 0) {
+            return null;
+        }
+        switch (channelCount) {
+            case 1:
+                return "Mono";
+            case 2:
+                return "Stereo";
+            case 6:
+                return "5.1";
+            case 8:
+                return "7.1";
+            default:
+                return channelCount + "ch";
         }
     }
 
-    public static String getColorTransferName(@C.ColorTransfer int colorTransfer) {
-        switch (colorTransfer) {
-            case C.COLOR_TRANSFER_LINEAR: return "Linear";
-            case C.COLOR_TRANSFER_SRGB: return "sRGB";
-            case C.COLOR_TRANSFER_SDR: return "SDR (SMPTE 170M)";
-            case C.COLOR_TRANSFER_GAMMA_2_2: return "Gamma 2.2";
-            case C.COLOR_TRANSFER_ST2084: return "ST.2084 (PQ)";
-            case C.COLOR_TRANSFER_HLG: return "HLG";
-            default: return "Unknown (" + colorTransfer + ")";
+    public static @Nullable String getAudioChannelsDisplayString(int channelCount) {
+        if (channelCount <= 0) {
+            return null;
+        }
+        String layout = getAudioLayoutDisplayString(channelCount);
+        if (TextUtils.isEmpty(layout)) {
+            return String.valueOf(channelCount);
+        }
+        return channelCount + " (" + layout + ")";
+    }
+
+    public static @Nullable String getCombinedBitrateDisplayString(int videoBitrate, int audioBitrate) {
+        String v = formatBitrate(videoBitrate);
+        String a = formatBitrate(audioBitrate);
+
+        if (TextUtils.isEmpty(v) && TextUtils.isEmpty(a)) {
+            return null;
+        }
+        if (!TextUtils.isEmpty(v) && !TextUtils.isEmpty(a)) {
+            return "Video " + v + ", Audio " + a;
+        }
+        if (!TextUtils.isEmpty(v)) {
+            return "Video " + v;
+        }
+        return "Audio " + a;
+    }
+
+    private static @Nullable String formatBitrate(int bitrate) {
+        if (bitrate <= 0) {
+            return null;
+        }
+
+        if (bitrate >= 1_000_000) {
+            return String.format(Locale.US, "%.2f Mbps", bitrate / 1_000_000.0);
+        }
+        if (bitrate >= 1_000) {
+            return String.format(Locale.US, "%.0f kbps", bitrate / 1_000.0);
+        }
+        return bitrate + " bps";
+    }
+
+    public static @Nullable String getDynamicRangeDisplayName(@Nullable String sampleMimeType, @Nullable ColorInfo colorInfo) {
+        if (MimeTypes.VIDEO_DOLBY_VISION.equals(sampleMimeType)) {
+            return "Dolby Vision";
+        }
+        if (colorInfo == null) {
+            return "SDR";
+        }
+
+        switch (colorInfo.colorTransfer) {
+            case C.COLOR_TRANSFER_ST2084:
+                return "HDR10 (PQ)";
+            case C.COLOR_TRANSFER_HLG:
+                return "HLG";
+            case C.COLOR_TRANSFER_SDR:
+                return "SDR";
+            default:
+                return "HDR";
         }
     }
 
-    public static String getColorRangeName(@C.ColorRange int colorRange) {
-        switch (colorRange) {
-            case C.COLOR_RANGE_LIMITED: return "Limited";
-            case C.COLOR_RANGE_FULL: return "Full";
-            default: return "Unknown (" + colorRange + ")";
+    public static @Nullable String getCodecProfileLevelDisplayString(@Nullable String sampleMimeType, int profile, int level) {
+        if (TextUtils.isEmpty(sampleMimeType)) {
+            return null;
+        }
+
+        if (MimeTypes.VIDEO_DOLBY_VISION.equals(sampleMimeType)) {
+            Integer dvProfile = getDolbyVisionProfileNumber(profile);
+            if (dvProfile != null) {
+                return "Dolby Vision Profile " + dvProfile;
+            }
+            return "Dolby Vision Profile " + profile;
+        }
+
+        String profileName = getProfileName(sampleMimeType, profile);
+        String levelName = getLevelName(sampleMimeType, level);
+        if (!TextUtils.isEmpty(profileName) && !TextUtils.isEmpty(levelName)) {
+            return profileName + "@" + levelName;
+        }
+        if (!TextUtils.isEmpty(profileName)) {
+            return profileName;
+        }
+        return levelName;
+    }
+
+    private static @Nullable Integer getDolbyVisionProfileNumber(int profile) {
+        switch (profile) {
+            case CodecProfileLevel.DolbyVisionProfileDvavPer:
+                return 0;
+            case CodecProfileLevel.DolbyVisionProfileDvavPen:
+                return 1;
+            case CodecProfileLevel.DolbyVisionProfileDvheDer:
+                return 2;
+            case CodecProfileLevel.DolbyVisionProfileDvheDen:
+                return 3;
+            case CodecProfileLevel.DolbyVisionProfileDvheDtr:
+                return 4;
+            case CodecProfileLevel.DolbyVisionProfileDvheStn:
+                return 5;
+            case CodecProfileLevel.DolbyVisionProfileDvheDth:
+                return 6;
+            case CodecProfileLevel.DolbyVisionProfileDvheDtb:
+                return 7;
+            case CodecProfileLevel.DolbyVisionProfileDvheSt:
+                return 8;
+            case CodecProfileLevel.DolbyVisionProfileDvavSe:
+                return 9;
+            default:
+                return null;
         }
     }
 
