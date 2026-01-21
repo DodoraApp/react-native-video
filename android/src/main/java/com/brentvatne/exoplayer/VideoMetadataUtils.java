@@ -195,6 +195,8 @@ public class VideoMetadataUtils {
         if (MimeTypes.VIDEO_DOLBY_VISION.equals(sampleMimeType)) {
             return "Dolby Vision";
         }
+
+        // Most content is SDR; only label HDR when we have strong evidence.
         if (colorInfo == null) {
             return "SDR";
         }
@@ -205,14 +207,21 @@ public class VideoMetadataUtils {
             case C.COLOR_TRANSFER_HLG:
                 return "HLG";
             case C.COLOR_TRANSFER_SDR:
+            case C.INDEX_UNSET:
                 return "SDR";
             default:
-                return "HDR";
+                // Unknown / device-specific values: don't over-report HDR.
+                return "SDR";
         }
     }
 
     public static @Nullable String getCodecProfileLevelDisplayString(@Nullable String sampleMimeType, int profile, int level) {
         if (TextUtils.isEmpty(sampleMimeType)) {
+            return null;
+        }
+
+        // Avoid emitting meaningless profile/level strings for audio.
+        if (!sampleMimeType.startsWith("video/")) {
             return null;
         }
 

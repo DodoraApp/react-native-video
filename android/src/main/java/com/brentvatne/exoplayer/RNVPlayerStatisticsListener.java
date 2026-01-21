@@ -29,6 +29,7 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
 
     private boolean enabled;
     private long debounceMs = DEFAULT_DEBOUNCE_MS;
+    private boolean posting;
 
     private final StatsState state = new StatsState();
 
@@ -52,6 +53,7 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
     }
 
     public void reset() {
+        emitIfChanged();
         handler.removeCallbacks(emitRunnable);
         state.reset();
         lastSignature = null;
@@ -63,11 +65,12 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
     }
 
     private void scheduleEmit() {
-        if (!enabled) {
+        if (!enabled || posting) {
             return;
         }
         handler.removeCallbacks(emitRunnable);
         handler.postDelayed(emitRunnable, debounceMs);
+        this.posting = true;
     }
 
     private void emitIfChanged() {
@@ -75,6 +78,7 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
             return;
         }
 
+        this.posting = false;
         WritableMap stats = state.toWritableMap();
         String signature = state.signature();
         if (signature.equals(lastSignature)) {
