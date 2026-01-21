@@ -283,4 +283,9 @@ class ReactExoplayerViewManager(private val config: ReactExoplayerConfig) : View
     fun setReportStatistics(videoView: ReactExoplayerView, reportStatistics: Boolean) {
         videoView.setReportStatistics(reportStatistics)
     }
+
+    @ReactProp(name = "matchFrameRate", defaultBoolean = false)
+    fun setMatchFrameRate(videoView: ReactExoplayerView, matchFrameRate: Boolean) {
+        videoView.setMatchFrameRate(matchFrameRate)
+    }
 }

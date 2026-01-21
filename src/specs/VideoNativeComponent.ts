@@ -408,6 +408,7 @@ export interface VideoNativeProps extends ViewProps {
   audioPassthrough?: WithDefault<boolean, false>; // Android
   enableWorkarounds?: WithDefault<boolean, false>; // Android
   reportStatistics?: WithDefault<boolean, false>; // Android
+  matchFrameRate?: WithDefault<boolean, false>; // Android
   onControlsVisibilityChange?: DirectEventHandler<OnControlsVisibilityChange>;
   onVideoLoad?: DirectEventHandler<OnLoadData>;
   onVideoLoadStart?: DirectEventHandler<OnLoadStartData>;

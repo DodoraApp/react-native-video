@@ -389,4 +389,5 @@ export interface ReactVideoProps extends ReactVideoEvents, ViewProps {
   audioPassthrough?: boolean; // Android
   enableWorkarounds?: boolean; // Android
   reportStatistics?: boolean; // Android
+  matchFrameRate?: boolean; // Android
 }

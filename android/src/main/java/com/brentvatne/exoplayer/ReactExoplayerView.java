@@ -267,7 +267,9 @@ public class ReactExoplayerView extends FrameLayout implements
     private boolean audioPassthrough = false;
     private boolean enableWorkarounds = false;
     private boolean reportStatistics = false;
+    private boolean matchFrameRate = false;
     private RNVPlayerStatisticsListener statisticsListener;
+    private final DisplayModeHelper displayModeHelper = new DisplayModeHelper();
     // \ End props
 
     // React
@@ -353,6 +355,7 @@ public class ReactExoplayerView extends FrameLayout implements
         audioBecomingNoisyReceiver = new AudioBecomingNoisyReceiver(themedReactContext);
         audioFocusChangeListener = new OnAudioFocusChangedListener(this, themedReactContext);
         pictureInPictureReceiver = new PictureInPictureReceiver(this, themedReactContext);
+        displayModeHelper.setActivity(context.getCurrentActivity());
     }
 
     private boolean isPlayingAd() {
@@ -413,6 +416,7 @@ public class ReactExoplayerView extends FrameLayout implements
         stopPlayback();
         themedReactContext.removeLifecycleEventListener(this);
         releasePlayer();
+        displayModeHelper.release();
         viewHasDropped = true;
     }
 
@@ -761,6 +765,18 @@ public class ReactExoplayerView extends FrameLayout implements
         if (statisticsListener != null) {
             statisticsListener.setEnabled(reportStatistics);
         }
+    }
+
+    /**
+     * Sets whether automatic framerate matching is enabled.
+     * When enabled, the display mode will be changed to match the video's framerate
+     * on supported devices.
+     */
+    public void setMatchFrameRate(boolean matchFrameRate) {
+        this.matchFrameRate = matchFrameRate;
+        displayModeHelper.setEnabled(matchFrameRate);
+        // Update activity reference in case it changed
+        displayModeHelper.setActivity(themedReactContext.getCurrentActivity());
     }
 
     private void initializePlayerCore(ReactExoplayerView self) {
@@ -1353,6 +1369,9 @@ public class ReactExoplayerView extends FrameLayout implements
             mainHandler.removeCallbacks(mainRunnable);
             mainRunnable = null;
         }
+
+        // Restore original display mode when releasing player
+        displayModeHelper.restoreOriginalDisplayMode();
     }
 
     private static class OnAudioFocusChangedListener implements AudioManager.OnAudioFocusChangeListener {
@@ -1595,6 +1614,9 @@ public class ReactExoplayerView extends FrameLayout implements
             int width = videoFormat != null ? (isRotatedContent ? videoFormat.height : videoFormat.width) : 0;
             int height = videoFormat != null ? (isRotatedContent ? videoFormat.width : videoFormat.height) : 0;
             String trackId = videoFormat != null ? videoFormat.id : null;
+
+            // Set display mode to match video framerate (if enabled)
+            displayModeHelper.setVideoFormat(videoFormat);
 
             // Properties that must be accessed on the main thread
             long duration = player.getDuration();
