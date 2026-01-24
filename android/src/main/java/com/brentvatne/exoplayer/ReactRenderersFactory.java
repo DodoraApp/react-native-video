@@ -6,7 +6,6 @@ import android.os.Handler;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
@@ -18,7 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ReactRenderersFactory extends DefaultRenderersFactory {
+import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
+
+public class ReactRenderersFactory extends NextRenderersFactory {
 
     private boolean enableWorkarounds = false;
 
@@ -38,7 +39,7 @@ public class ReactRenderersFactory extends DefaultRenderersFactory {
             VideoRendererEventListener eventListener,
             long allowedVideoJoiningTimeMs,
             ArrayList<Renderer> out) {
-        // 1. Let DefaultRenderersFactory populate the list with standard renderers (including extensions)
+        // 1. Let NextRenderersFactory populate the list with standard renderers (including FFmpeg extensions)
         super.buildVideoRenderers(
                 context,
                 extensionRendererMode,
@@ -70,7 +71,8 @@ public class ReactRenderersFactory extends DefaultRenderersFactory {
                     .setEventListener(eventListener)
                     .setMaxDroppedFramesToNotify(MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
 
-            out.add(rendererIndex, new MediaCodecVideoRendererWithWorkarounds(mediaCodecVideoRendererBuilder, enableWorkarounds));
+            // Add at first position to prefer over ffmpeg decoding
+            out.add(0, new MediaCodecVideoRendererWithWorkarounds(mediaCodecVideoRendererBuilder, enableWorkarounds));
         }
     }
 }

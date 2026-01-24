@@ -317,6 +317,6 @@ dependencies {
         implementation "androidx.media3:media3-common:$media3_version"
     }
 
-    // FFmpeg extension for ExoPlayer
-    implementation files("libs/androidx-media-lib-decoder-ffmpeg-release.aar")
+    implementation("io.github.anilbeesetti:nextlib-media3ext:1.8.0-0.9.0")
+    implementation("io.github.anilbeesetti:nextlib-mediainfo:1.8.0-0.9.0")
 }
