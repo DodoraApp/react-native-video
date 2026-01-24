@@ -62,7 +62,6 @@ import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.DefaultLoadControl;
-import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
@@ -164,6 +163,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
+
 @SuppressLint("ViewConstructor")
 public class ReactExoplayerView extends FrameLayout implements
         LifecycleEventListener,
@@ -171,6 +172,7 @@ public class ReactExoplayerView extends FrameLayout implements
         BandwidthMeter.EventListener,
         BecomingNoisyListener,
         DrmSessionEventListener,
+        AnalyticsListener,
         AdEvent.AdEventListener,
         AdErrorEvent.AdErrorListener {
 
@@ -270,6 +272,7 @@ public class ReactExoplayerView extends FrameLayout implements
     private boolean matchFrameRate = false;
     private RNVPlayerStatisticsListener statisticsListener;
     private final DisplayModeHelper displayModeHelper = new DisplayModeHelper();
+    private MediaInfo extractedMediaInfo = null;
     // \ End props
 
     // React
@@ -808,8 +811,8 @@ public class ReactExoplayerView extends FrameLayout implements
         renderersFactory
                 .setExtensionRendererMode(
                         audioPassthrough
-                                ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
-                                : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+                                ? NextRenderersFactory.EXTENSION_RENDERER_MODE_ON
+                                : NextRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
                 .setEnableDecoderFallback(true)
                 .forceEnableMediaCodecAsynchronousQueueing();
 
@@ -850,6 +853,9 @@ public class ReactExoplayerView extends FrameLayout implements
         statisticsListener = new RNVPlayerStatisticsListener(eventEmitter);
         statisticsListener.setEnabled(reportStatistics);
         player.addAnalyticsListener(statisticsListener);
+        
+        // Add this view as analytics listener to receive video format updates
+        player.addAnalyticsListener(this);
 
         setPlayWhenReady(!isPaused);
         playerNeedsSource = true;
@@ -1610,9 +1616,6 @@ public class ReactExoplayerView extends FrameLayout implements
             int height = videoFormat != null ? (isRotatedContent ? videoFormat.width : videoFormat.height) : 0;
             String trackId = videoFormat != null ? videoFormat.id : null;
 
-            // Set display mode to match video framerate (if enabled)
-            displayModeHelper.setVideoFormat(videoFormat);
-
             // Properties that must be accessed on the main thread
             long duration = player.getDuration();
             long currentPosition = player.getCurrentPosition();
@@ -2176,12 +2179,89 @@ public class ReactExoplayerView extends FrameLayout implements
             if (!isSourceEqual) {
                 hasVideoEnded = false;
                 playerNeedsSource = true;
+                extractedMediaInfo = null; // Reset media info for new source
+                
                 initializePlayer();
             }
         } else {
             clearSrc();
         }
     }
+    /**
+     * Loads media info (if needed) and applies the appropriate display mode.
+     * This is the single entry point for display mode changes.
+     * 
+     * @param format The video format from ExoPlayer (may have incomplete framerate info)
+     */
+    private void loadMediaInfoAndApplyDisplayMode(@Nullable Format format) {
+        if (!matchFrameRate) {
+            DebugLog.d(TAG, "Frame-rate matching is disabled");
+            return;
+        }
+        
+        // If ExoPlayer provides valid framerate, use it directly
+        if (format != null && format.frameRate > 0 && format.width > 0 && format.height > 0) {
+            DebugLog.d(TAG, "Using ExoPlayer format for display mode: " + 
+                    format.width + "x" + format.height + "@" + format.frameRate + "fps");
+            displayModeHelper.setDisplayMode(format.frameRate, format.width, format.height);
+            return;
+        }
+        
+        // If we already have extracted media info with valid framerate, use it
+        if (extractedMediaInfo != null && extractedMediaInfo.getFrameRate() > 0) {
+            int width = format != null && format.width > 0 ? format.width : (int) extractedMediaInfo.getVideoWidth();
+            int height = format != null && format.height > 0 ? format.height : (int) extractedMediaInfo.getVideoHeight();
+            
+            DebugLog.d(TAG, "Using extracted MediaInfo for display mode: " + 
+                    width + "x" + height + "@" + extractedMediaInfo.getFrameRate() + "fps");
+            displayModeHelper.setDisplayMode(
+                extractedMediaInfo.getFrameRate(),
+                width,
+                height
+            );
+            return;
+        }
+        
+        // Try to load media info if we haven't already and source is available
+        if (extractedMediaInfo == null && source != null && source.getUri() != null) {
+            String uri = source.getUri().toString();
+            if (MediaInfoLoader.isExtractionSupported(uri)) {
+                DebugLog.d(TAG, "Loading media info for display mode adjustment");
+                ExecutorService es = Executors.newSingleThreadExecutor();
+                es.execute(() -> {
+                    MediaInfo mediaInfo = MediaInfoLoader.loadMediaInfo(uri);
+                    if (mediaInfo != null) {
+                        extractedMediaInfo = mediaInfo;
+                        
+                        // Pass to statistics listener
+                        if (statisticsListener != null) {
+                            statisticsListener.setExtractedMediaInfo(mediaInfo);
+                        }
+                        
+                        // Apply display mode on main thread
+                        if (mediaInfo.getFrameRate() > 0) {
+                            int width = format != null && format.width > 0 ? format.width : (int) mediaInfo.getVideoWidth();
+                            int height = format != null && format.height > 0 ? format.height : (int) mediaInfo.getVideoHeight();
+                            
+                            mainHandler.post(() -> {
+                                DebugLog.d(TAG, "Applying display mode from loaded MediaInfo: " + 
+                                        width + "x" + height + "@" + mediaInfo.getFrameRate() + "fps");
+                                displayModeHelper.setDisplayMode(
+                                    mediaInfo.getFrameRate(),
+                                    width,
+                                    height
+                                );
+                            });
+                        }
+                    } else {
+                        DebugLog.w(TAG, "Failed to load media info for display mode");
+                    }
+                });
+                es.shutdown();
+            }
+        }
+    }
+    
     public void clearSrc() {
         if (source.getUri() != null) {
             if (player != null) {
@@ -2192,6 +2272,7 @@ public class ReactExoplayerView extends FrameLayout implements
 
         this.source = new Source();
         this.mediaDataSourceFactory = null;
+        this.extractedMediaInfo = null;
         clearResumePosition();
     }
 
@@ -2831,6 +2912,28 @@ public class ReactExoplayerView extends FrameLayout implements
     @Override
     public void onDrmKeysRemoved(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
         DebugLog.d("DRM Info", "onDrmKeysRemoved");
+    }
+
+    // AnalyticsListener implementation
+    @Override
+    public void onVideoInputFormatChanged(EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
+        // This is called when the decoder starts receiving video data and the format is fully known.
+        // This is the single point where we update display mode based on video format.
+        DebugLog.d(TAG, "onVideoInputFormatChanged called with format: " + 
+                (format != null ? (format.width + "x" + format.height + "@" + format.frameRate + " fps") : "null"));
+        
+        if (format != null) {
+            DebugLog.d(TAG, "Video format details:" +
+                    "\n  width: " + format.width +
+                    "\n  height: " + format.height +
+                    "\n  frameRate: " + format.frameRate +
+                    "\n  bitrate: " + format.bitrate +
+                    "\n  sampleMimeType: " + format.sampleMimeType +
+                    "\n  codecs: " + format.codecs);
+            
+            // Single entry point for display mode changes
+            loadMediaInfoAndApplyDisplayMode(format);
+        }
     }
 
     /**

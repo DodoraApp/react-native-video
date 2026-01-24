@@ -32,6 +32,9 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
     private boolean posting;
 
     private final StatsState state = new StatsState();
+    
+    @Nullable
+    private MediaInfo extractedMediaInfo;
 
     private @Nullable String lastSignature;
     private final Runnable emitRunnable = this::emitIfChanged;
@@ -63,6 +66,14 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
         state.streamType = streamType;
         scheduleEmit();
     }
+    
+    /**
+     * Sets the extracted media info as a fallback for missing format information.
+     */
+    public void setExtractedMediaInfo(@Nullable MediaInfo mediaInfo) {
+        this.extractedMediaInfo = mediaInfo;
+        scheduleEmit();
+    }
 
     private void scheduleEmit() {
         if (!enabled || posting) {
@@ -79,7 +90,7 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
         }
 
         this.posting = false;
-        WritableMap stats = state.toWritableMap();
+        WritableMap stats = state.toWritableMap(extractedMediaInfo);
         String signature = state.signature();
         if (signature.equals(lastSignature)) {
             return;
@@ -184,6 +195,10 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
         }
 
         WritableMap toWritableMap() {
+            return toWritableMap(null);
+        }
+        
+        WritableMap toWritableMap(@Nullable MediaInfo extractedInfo) {
             WritableMap out = Arguments.createMap();
 
             // --- New, human-readable fields ---
@@ -197,8 +212,22 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
             if (videoFormat != null) {
                 out.putString("videoCodecName", VideoMetadataUtils.getCodecDisplayString(videoFormat.sampleMimeType));
                 out.putString("resolution", VideoMetadataUtils.getResolutionDisplayString(videoFormat.width, videoFormat.height));
-                out.putString("frameRate", VideoMetadataUtils.getFrameRateDisplayString(videoFormat.frameRate));
+                
+                // Use extracted media info framerate as fallback if ExoPlayer format has no framerate
+                float frameRate = videoFormat.frameRate;
+                if (frameRate <= 0 && extractedInfo != null && extractedInfo.getFrameRate() > 0) {
+                    frameRate = extractedInfo.getFrameRate();
+                }
+                out.putString("frameRate", VideoMetadataUtils.getFrameRateDisplayString(frameRate));
+                
                 out.putString("decodedVideoFormat", getDecodedFormatDisplayString(videoFormat));
+            } else if (extractedInfo != null) {
+                // Use extracted info if no ExoPlayer format available
+                out.putString("resolution", VideoMetadataUtils.getResolutionDisplayString(
+                    (int) extractedInfo.getVideoWidth(), 
+                    (int) extractedInfo.getVideoHeight()
+                ));
+                out.putString("frameRate", VideoMetadataUtils.getFrameRateDisplayString(extractedInfo.getFrameRate()));
             }
 
             if (audioFormat != null) {
@@ -211,10 +240,16 @@ public final class RNVPlayerStatisticsListener implements AnalyticsListener {
             out.putString("videoDecoder", videoDecoder);
             out.putString("audioDecoder", audioDecoder);
 
+            // Use extracted bitrate as fallback
+            int videoBitrate = videoFormat != null ? videoFormat.bitrate : Format.NO_VALUE;
+            if (videoBitrate <= 0 && extractedInfo != null && extractedInfo.getBitrate() > 0) {
+                videoBitrate = (int) extractedInfo.getBitrate();
+            }
+            
             out.putString(
                     "bitrate",
                     VideoMetadataUtils.getCombinedBitrateDisplayString(
-                            videoFormat != null ? videoFormat.bitrate : Format.NO_VALUE,
+                            videoBitrate,
                             audioFormat != null ? audioFormat.bitrate : Format.NO_VALUE
                     )
             );
