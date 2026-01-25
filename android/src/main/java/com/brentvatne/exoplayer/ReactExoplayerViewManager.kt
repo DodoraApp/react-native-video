@@ -279,6 +279,11 @@ class ReactExoplayerViewManager(private val config: ReactExoplayerConfig) : View
         videoView.setEnableWorkarounds(enableWorkarounds)
     }
 
+    @ReactProp(name = "enableVideoSoftwareDecoding", defaultBoolean = false)
+    fun setEnableVideoSoftwareDecoding(videoView: ReactExoplayerView, enableVideoSoftwareDecoding: Boolean) {
+        videoView.setEnableVideoSoftwareDecoding(enableVideoSoftwareDecoding)
+    }
+
     @ReactProp(name = "reportStatistics", defaultBoolean = false)
     fun setReportStatistics(videoView: ReactExoplayerView, reportStatistics: Boolean) {
         videoView.setReportStatistics(reportStatistics)

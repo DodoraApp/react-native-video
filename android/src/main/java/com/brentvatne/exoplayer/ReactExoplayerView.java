@@ -41,6 +41,7 @@ import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.Format;
+import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Metadata;
@@ -268,6 +269,7 @@ public class ReactExoplayerView extends FrameLayout implements
     private boolean tunneled = false;
     private boolean audioPassthrough = false;
     private boolean enableWorkarounds = false;
+    private boolean enableVideoSoftwareDecoding = false;
     private boolean reportStatistics = false;
     private boolean matchFrameRate = false;
     private RNVPlayerStatisticsListener statisticsListener;
@@ -736,6 +738,23 @@ public class ReactExoplayerView extends FrameLayout implements
         }
     }
 
+    /**
+     * Enables or disables audio passthrough (bitstreaming) for high-quality audio formats.
+     * 
+     * When enabled:
+     * - Compressed audio (Dolby TrueHD, DTS-HD, AC3, E-AC3, etc.) is passed through without decoding
+     * - Audio is sent directly to external receivers/soundbars for native decoding
+     * - Enables audio offload mode for better power efficiency
+     * - Requires compatible audio hardware (HDMI receiver, soundbar, etc.)
+     * 
+     * When disabled:
+     * - Audio is decoded on the device and output as PCM
+     * - Works with all audio output devices
+     * - Allows for audio processing (volume control, effects, etc.)
+     * 
+     * Note: This only affects the default track selection. If you manually select tracks,
+     * you'll need to select passthrough-compatible formats yourself.
+     */
     public void setAudioPassthrough(boolean audioPassthrough) {
         if (this.audioPassthrough != audioPassthrough) {
             this.audioPassthrough = audioPassthrough;
@@ -750,6 +769,38 @@ public class ReactExoplayerView extends FrameLayout implements
     public void setEnableWorkarounds(boolean enableWorkarounds) {
         if (this.enableWorkarounds != enableWorkarounds) {
             this.enableWorkarounds = enableWorkarounds;
+            if (player != null) {
+                player.release();
+                player = null;
+                initializePlayer();
+            }
+        }
+    }
+
+    /**
+     * Enables or disables software video decoding via FFmpeg.
+     * 
+     * Software decoding runs on CPU rather than hardware accelerators (GPU/dedicated chips).
+     * 
+     * Pros:
+     * - Better format/codec compatibility
+     * - Works when hardware decoders are unavailable or buggy
+     * 
+     * Cons:
+     * - Higher CPU usage and battery drain
+     * - May cause performance issues on low-end devices
+     * - Can lead to UI lag, overheating on weak hardware
+     * 
+     * Recommended usage:
+     * - Disable (default) on set-top boxes, Fire TV sticks, low-end phones
+     * - Enable on mid-to-high end devices when you need broader codec support
+     * 
+     * Note: Hardware decoding is always enabled and takes priority when available.
+     * FFmpeg audio decoding is always enabled (negligible performance impact).
+     */
+    public void setEnableVideoSoftwareDecoding(boolean enableVideoSoftwareDecoding) {
+        if (this.enableVideoSoftwareDecoding != enableVideoSoftwareDecoding) {
+            this.enableVideoSoftwareDecoding = enableVideoSoftwareDecoding;
             if (player != null) {
                 player.release();
                 player = null;
@@ -785,11 +836,24 @@ public class ReactExoplayerView extends FrameLayout implements
                 .setTunnelingEnabled(tunneled);
 
         if (audioPassthrough) {
+            // Configure preferred audio MIME types for passthrough formats
             parametersBuilder.setPreferredAudioMimeTypes(
                     MimeTypes.AUDIO_TRUEHD,
                     MimeTypes.AUDIO_DTS_HD,
                     MimeTypes.AUDIO_DTS,
-                    MimeTypes.AUDIO_E_AC3
+                    MimeTypes.AUDIO_E_AC3,
+                    MimeTypes.AUDIO_AC3,
+                    MimeTypes.AUDIO_AC4
+            );
+            
+            // Enable audio offload for true passthrough/bitstreaming to external devices
+            // This allows compressed audio to be passed through without decoding
+            parametersBuilder.setAudioOffloadPreferences(
+                    new TrackSelectionParameters.AudioOffloadPreferences.Builder()
+                            .setAudioOffloadMode(TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                            .setIsGaplessSupportRequired(false)
+                            .setIsSpeedChangeSupportRequired(false)
+                            .build()
             );
         }
 
@@ -807,12 +871,13 @@ public class ReactExoplayerView extends FrameLayout implements
             this.bandwidthMeter = config.getBandwidthMeter();
         }
 
-        ReactRenderersFactory renderersFactory = new ReactRenderersFactory(getContext(), enableWorkarounds);
+        ReactRenderersFactory renderersFactory = new ReactRenderersFactory(
+                getContext(), 
+                enableWorkarounds, 
+                enableVideoSoftwareDecoding
+        );
         renderersFactory
-                .setExtensionRendererMode(
-                        audioPassthrough
-                                ? NextRenderersFactory.EXTENSION_RENDERER_MODE_ON
-                                : NextRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+                .setExtensionRendererMode(NextRenderersFactory.EXTENSION_RENDERER_MODE_ON)
                 .setEnableDecoderFallback(true)
                 .forceEnableMediaCodecAsynchronousQueueing();
 
@@ -2187,6 +2252,7 @@ public class ReactExoplayerView extends FrameLayout implements
             clearSrc();
         }
     }
+
     /**
      * Loads media info (if needed) and applies the appropriate display mode.
      * This is the single entry point for display mode changes.

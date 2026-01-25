@@ -407,6 +407,7 @@ export interface VideoNativeProps extends ViewProps {
   tunneled?: WithDefault<boolean, false>; // Android
   audioPassthrough?: WithDefault<boolean, false>; // Android
   enableWorkarounds?: WithDefault<boolean, false>; // Android
+  enableVideoSoftwareDecoding?: WithDefault<boolean, false>; // Android
   reportStatistics?: WithDefault<boolean, false>; // Android
   matchFrameRate?: WithDefault<boolean, false>; // Android
   onControlsVisibilityChange?: DirectEventHandler<OnControlsVisibilityChange>;
