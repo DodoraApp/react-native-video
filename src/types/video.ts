@@ -388,6 +388,7 @@ export interface ReactVideoProps extends ReactVideoEvents, ViewProps {
   tunneled?: boolean; // Android
   audioPassthrough?: boolean; // Android
   enableWorkarounds?: boolean; // Android
+  enableVideoSoftwareDecoding?: boolean; // Android
   reportStatistics?: boolean; // Android
   matchFrameRate?: boolean; // Android
 }

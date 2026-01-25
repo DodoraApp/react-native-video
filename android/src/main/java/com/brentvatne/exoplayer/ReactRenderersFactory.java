@@ -22,11 +22,13 @@ import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
 public class ReactRenderersFactory extends NextRenderersFactory {
 
     private boolean enableWorkarounds = false;
+    private boolean enableVideoSoftwareDecoding = false;
 
-    public ReactRenderersFactory(Context context, boolean enableWorkarounds) {
+    public ReactRenderersFactory(Context context, boolean enableWorkarounds, boolean enableVideoSoftwareDecoding) {
         super(context);
 
         this.enableWorkarounds = enableWorkarounds;
+        this.enableVideoSoftwareDecoding = enableVideoSoftwareDecoding;
     }
 
     @Override
@@ -50,7 +52,17 @@ public class ReactRenderersFactory extends NextRenderersFactory {
                 allowedVideoJoiningTimeMs,
                 out);
 
-        // 2. Find the standard MediaCodecVideoRenderer in the list
+        // 2. Remove FFmpeg video renderer if software decoding is disabled
+        if (!enableVideoSoftwareDecoding) {
+            // Remove FFmpeg video renderer (typically added by NextRenderersFactory)
+            // FFmpeg renderer is usually not a MediaCodecVideoRenderer instance
+            out.removeIf(renderer -> 
+                !(renderer instanceof MediaCodecVideoRenderer) && 
+                renderer.getClass().getName().contains("FfmpegVideoRenderer")
+            );
+        }
+
+        // 3. Find the standard MediaCodecVideoRenderer in the list and replace with our custom one
         int rendererIndex = -1;
         for (int i = 0; i < out.size(); i++) {
             if (out.get(i) instanceof MediaCodecVideoRenderer) {
@@ -59,7 +71,7 @@ public class ReactRenderersFactory extends NextRenderersFactory {
             }
         }
 
-        // 3. If found, replace it with our custom one
+        // 4. Replace hardware renderer with our custom one that has workarounds
         if (rendererIndex != -1) {
             out.remove(rendererIndex);
 
@@ -71,7 +83,7 @@ public class ReactRenderersFactory extends NextRenderersFactory {
                     .setEventListener(eventListener)
                     .setMaxDroppedFramesToNotify(MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
 
-            // Add at first position to prefer over ffmpeg decoding
+            // Add at first position to prefer hardware over software decoding
             out.add(0, new MediaCodecVideoRendererWithWorkarounds(mediaCodecVideoRendererBuilder, enableWorkarounds));
         }
     }
