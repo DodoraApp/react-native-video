@@ -2260,72 +2260,125 @@ public class ReactExoplayerView extends FrameLayout implements
      * @param format The video format from ExoPlayer (may have incomplete framerate info)
      */
     private void loadMediaInfoAndApplyDisplayMode(@Nullable Format format) {
+        // Start async media info loading if needed
+        if (shouldLoadMediaInfo()) {
+            startMediaInfoLoading(format);
+            return;
+        }
+        
+        // Apply display mode synchronously if media info already available
+        applyDisplayModeSync(format);
+    }
+    
+    private boolean shouldLoadMediaInfo() {
+        return extractedMediaInfo == null 
+            && source != null 
+            && source.getUri() != null 
+            && MediaInfoLoader.isExtractionSupported(source.getUri().toString());
+    }
+    
+    private void startMediaInfoLoading(@Nullable Format format) {
+        String uri = source.getUri().toString();
+        DebugLog.d(TAG, "Loading media info for chapters and metadata extraction");
+        
+        ExecutorService es = Executors.newSingleThreadExecutor();
+        es.execute(() -> {
+            MediaInfo mediaInfo = MediaInfoLoader.loadMediaInfo(uri);
+            handleMediaInfoLoaded(mediaInfo, format);
+        });
+        es.shutdown();
+    }
+    
+    private void handleMediaInfoLoaded(@Nullable MediaInfo mediaInfo, @Nullable Format format) {
+        if (mediaInfo != null) {
+            extractedMediaInfo = mediaInfo;
+            
+            if (statisticsListener != null) {
+                statisticsListener.setExtractedMediaInfo(mediaInfo);
+            }
+            
+            emitChaptersIfAvailable(mediaInfo);
+            applyDisplayModeFromMediaInfo(mediaInfo, format);
+        } else {
+            DebugLog.w(TAG, "Failed to load media info");
+            applyDisplayModeFromFormat(format, "MediaInfo loading failed");
+        }
+    }
+    
+    private void emitChaptersIfAvailable(MediaInfo mediaInfo) {
+        if (!mediaInfo.getChapters().isEmpty()) {
+            mainHandler.post(() -> {
+                DebugLog.d(TAG, "Emitting chapters event with " + mediaInfo.getChapters().size() + " chapters");
+                eventEmitter.onChapters.invoke(mediaInfo.getChapters());
+            });
+        }
+    }
+    
+    private void applyDisplayModeFromMediaInfo(MediaInfo mediaInfo, @Nullable Format format) {
+        if (!matchFrameRate) {
+            return;
+        }
+        
+        if (mediaInfo.getFrameRate() > 0) {
+            int width = getWidthFromFormatOrMediaInfo(format, mediaInfo);
+            int height = getHeightFromFormatOrMediaInfo(format, mediaInfo);
+            
+            mainHandler.post(() -> {
+                DebugLog.d(TAG, "Applying display mode from MediaInfo: " + 
+                        width + "x" + height + "@" + mediaInfo.getFrameRate() + "fps");
+                displayModeHelper.setDisplayMode(mediaInfo.getFrameRate(), width, height);
+            });
+        } else {
+            // MediaInfo has no framerate, fallback to format
+            applyDisplayModeFromFormat(format, "MediaInfo has no framerate");
+        }
+    }
+    
+    private void applyDisplayModeFromFormat(@Nullable Format format, String reason) {
+        if (!matchFrameRate || !isFormatValid(format)) {
+            return;
+        }
+        
+        mainHandler.post(() -> {
+            DebugLog.d(TAG, reason + ", using ExoPlayer format for display mode: " + 
+                    format.width + "x" + format.height + "@" + format.frameRate + "fps");
+            displayModeHelper.setDisplayMode(format.frameRate, format.width, format.height);
+        });
+    }
+    
+    private void applyDisplayModeSync(@Nullable Format format) {
         if (!matchFrameRate) {
             DebugLog.d(TAG, "Frame-rate matching is disabled");
             return;
         }
         
-        // If ExoPlayer provides valid framerate, use it directly
-        if (format != null && format.frameRate > 0 && format.width > 0 && format.height > 0) {
-            DebugLog.d(TAG, "Using ExoPlayer format for display mode: " + 
-                    format.width + "x" + format.height + "@" + format.frameRate + "fps");
-            displayModeHelper.setDisplayMode(format.frameRate, format.width, format.height);
-            return;
-        }
-        
-        // If we already have extracted media info with valid framerate, use it
         if (extractedMediaInfo != null && extractedMediaInfo.getFrameRate() > 0) {
-            int width = format != null && format.width > 0 ? format.width : (int) extractedMediaInfo.getVideoWidth();
-            int height = format != null && format.height > 0 ? format.height : (int) extractedMediaInfo.getVideoHeight();
+            int width = getWidthFromFormatOrMediaInfo(format, extractedMediaInfo);
+            int height = getHeightFromFormatOrMediaInfo(format, extractedMediaInfo);
             
             DebugLog.d(TAG, "Using extracted MediaInfo for display mode: " + 
                     width + "x" + height + "@" + extractedMediaInfo.getFrameRate() + "fps");
-            displayModeHelper.setDisplayMode(
-                extractedMediaInfo.getFrameRate(),
-                width,
-                height
-            );
-            return;
+            displayModeHelper.setDisplayMode(extractedMediaInfo.getFrameRate(), width, height);
+        } else if (isFormatValid(format)) {
+            DebugLog.d(TAG, "Using ExoPlayer format as fallback for display mode: " + 
+                    format.width + "x" + format.height + "@" + format.frameRate + "fps");
+            displayModeHelper.setDisplayMode(format.frameRate, format.width, format.height);
         }
-        
-        // Try to load media info if we haven't already and source is available
-        if (extractedMediaInfo == null && source != null && source.getUri() != null) {
-            String uri = source.getUri().toString();
-            if (MediaInfoLoader.isExtractionSupported(uri)) {
-                DebugLog.d(TAG, "Loading media info for display mode adjustment");
-                ExecutorService es = Executors.newSingleThreadExecutor();
-                es.execute(() -> {
-                    MediaInfo mediaInfo = MediaInfoLoader.loadMediaInfo(uri);
-                    if (mediaInfo != null) {
-                        extractedMediaInfo = mediaInfo;
-                        
-                        // Pass to statistics listener
-                        if (statisticsListener != null) {
-                            statisticsListener.setExtractedMediaInfo(mediaInfo);
-                        }
-                        
-                        // Apply display mode on main thread
-                        if (mediaInfo.getFrameRate() > 0) {
-                            int width = format != null && format.width > 0 ? format.width : (int) mediaInfo.getVideoWidth();
-                            int height = format != null && format.height > 0 ? format.height : (int) mediaInfo.getVideoHeight();
-                            
-                            mainHandler.post(() -> {
-                                DebugLog.d(TAG, "Applying display mode from loaded MediaInfo: " + 
-                                        width + "x" + height + "@" + mediaInfo.getFrameRate() + "fps");
-                                displayModeHelper.setDisplayMode(
-                                    mediaInfo.getFrameRate(),
-                                    width,
-                                    height
-                                );
-                            });
-                        }
-                    } else {
-                        DebugLog.w(TAG, "Failed to load media info for display mode");
-                    }
-                });
-                es.shutdown();
-            }
-        }
+    }
+    
+    private boolean isFormatValid(@Nullable Format format) {
+        return format != null 
+            && format.frameRate > 0 
+            && format.width > 0 
+            && format.height > 0;
+    }
+    
+    private int getWidthFromFormatOrMediaInfo(@Nullable Format format, MediaInfo mediaInfo) {
+        return format != null && format.width > 0 ? format.width : (int) mediaInfo.getVideoWidth();
+    }
+    
+    private int getHeightFromFormatOrMediaInfo(@Nullable Format format, MediaInfo mediaInfo) {
+        return format != null && format.height > 0 ? format.height : (int) mediaInfo.getVideoHeight();
     }
     
     public void clearSrc() {

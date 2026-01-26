@@ -102,7 +102,12 @@ public class MediaInfoLoader {
                         endMs = duration;
                     }
                     
-                    chapters.add(new MediaInfo.Chapter(title, startMs, endMs));
+                    // Parse chapter type based on title and position
+                    MediaInfo.ChapterType type = MediaInfo.parseChapterType(title, startMs, endMs, duration);
+                    
+                    chapters.add(new MediaInfo.Chapter(title, startMs, endMs, type));
+                    
+                    DebugLog.d(TAG, "Chapter: " + title + " (" + startMs + "ms - " + endMs + "ms) Type: " + type);
                 }
             }
             

@@ -77,6 +77,14 @@ export enum DRMType {
   FAIRPLAY = 'fairplay',
 }
 
+export enum ChapterType {
+  RECAP = 'RECAP',
+  PREVIEW = 'PREVIEW',
+  INTRO = 'INTRO',
+  CREDITS = 'CREDITS',
+  UNKNOWN = 'UNKNOWN',
+}
+
 export type DaiFormat = 'hls' | 'dash';
 export type DaiStreamType = 'vod' | 'live';
 
@@ -260,6 +268,7 @@ export type Chapters = {
   title: string;
   startTime: number;
   endTime: number;
+  type?: ChapterType;
   uri?: string;
 };
 

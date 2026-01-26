@@ -3,6 +3,7 @@ package com.brentvatne.common.react
 import com.brentvatne.common.api.TimedMetadata
 import com.brentvatne.common.api.Track
 import com.brentvatne.common.api.VideoTrack
+import com.brentvatne.exoplayer.MediaInfo
 import com.brentvatne.exoplayer.ReactExoplayerView
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableArray
@@ -44,7 +45,8 @@ enum class EventTypes(val eventName: String) {
     EVENT_VIDEO_TRACKS("onVideoTracks"),
     EVENT_ON_RECEIVE_AD_EVENT("onReceiveAdEvent"),
     EVENT_PICTURE_IN_PICTURE_STATUS_CHANGED("onPictureInPictureStatusChanged"),
-    EVENT_ON_STATISTICS("onVideoStatistics");
+    EVENT_ON_STATISTICS("onVideoStatistics"),
+    EVENT_CHAPTERS("onChapters");
 
     companion object {
         fun toMap() =
@@ -94,6 +96,7 @@ class VideoEventEmitter {
     lateinit var onReceiveAdEvent: (adEvent: String, adData: Map<String?, String?>?) -> Unit
     lateinit var onVideoStatistics: (statistics: WritableMap?) -> Unit
     lateinit var onPictureInPictureStatusChanged: (isActive: Boolean) -> Unit
+    lateinit var onChapters: (chapters: List<MediaInfo.Chapter>) -> Unit
 
     fun addEventEmitters(reactContext: ThemedReactContext, view: ReactExoplayerView) {
         val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, view.id)
@@ -316,6 +319,11 @@ class VideoEventEmitter {
                     putBoolean("isActive", isActive)
                 }
             }
+            onChapters = { chapters ->
+                event.dispatch(EventTypes.EVENT_CHAPTERS) {
+                    putArray("chapters", chaptersToArray(chapters))
+                }
+            }
         }
     }
 
@@ -397,5 +405,19 @@ class VideoEventEmitter {
             }
 
             putString("orientation", orientation)
+        }
+    
+    private fun chaptersToArray(chapters: List<com.brentvatne.exoplayer.MediaInfo.Chapter>): WritableArray =
+        Arguments.createArray().apply {
+            chapters.forEach { chapter ->
+                pushMap(
+                    Arguments.createMap().apply {
+                        putString("title", chapter.title)
+                        putDouble("startTime", chapter.startMs / 1000.0)
+                        putDouble("endTime", chapter.endMs / 1000.0)
+                        putString("type", chapter.type.name)
+                    }
+                )
+            }
         }
 }

@@ -20,12 +20,17 @@ import type {
   OnVideoTracksData,
   OnVolumeChangeData,
 } from '../specs/VideoNativeComponent';
+import {Chapters} from './video';
 
 export type * from '../specs/VideoNativeComponent';
 
 export type AudioTrack = OnAudioTracksData['audioTracks'][number];
 export type TextTrack = OnTextTracksData['textTracks'][number];
 export type VideoTrack = OnVideoTracksData['videoTracks'][number];
+
+export type OnChaptersData = Readonly<{
+  chapters: Chapters[];
+}>;
 
 export type OnLoadData = Readonly<{
   currentTime: number;
@@ -240,6 +245,7 @@ export interface ReactVideoEvents {
   onAudioFocusChanged?: (e: OnAudioFocusChangedData) => void; // Android
   onIdle?: () => void; // Android
   onBandwidthUpdate?: (e: OnBandwidthUpdateData) => void; //Android
+  onChapters?: (e: OnChaptersData) => void; // Android
   onBuffer?: (e: OnBufferData) => void; //Android, iOS
   onControlsVisibilityChange?: (e: OnControlsVisibilityChange) => void; // Android, iOS
   onEnd?: () => void; //All
