@@ -64,6 +64,8 @@ import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.LoadControl;
+import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.dash.DashUtil;
@@ -97,6 +99,7 @@ import androidx.media3.exoplayer.source.MergingMediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.source.ads.AdsMediaSource;
+import androidx.media3.exoplayer.text.TextRenderer;
 import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
@@ -108,6 +111,8 @@ import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
 import androidx.media3.exoplayer.util.EventLogger;
+import androidx.media3.extractor.DefaultExtractorsFactory;
+import androidx.media3.extractor.ExtractorsFactory;
 import androidx.media3.extractor.metadata.emsg.EventMessage;
 import androidx.media3.extractor.metadata.id3.Id3Frame;
 import androidx.media3.extractor.metadata.id3.TextInformationFrame;
@@ -610,10 +615,20 @@ public class ReactExoplayerView extends FrameLayout implements
         }
 
         @Override
-        public boolean shouldContinueLoading(long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
-            if (bufferingStrategy == BufferingStrategy.BufferingStrategyEnum.DisableBuffering) {
+        public boolean shouldContinueLoading(LoadControl.Parameters parameters) {
+            long bufferedMs = parameters.bufferedDurationUs / 1000;
+            // The app may never pass the `bufferingStrategy` prop. A configured heap cap
+            // (maxHeapAllocationPercent < 1) is only meaningful under DependingOnMemory,
+            // so default to it when a cap is set and no explicit strategy was provided.
+            // An explicit prop (Default/DisableBuffering/DependingOnMemory) always wins.
+            BufferingStrategy.BufferingStrategyEnum effectiveBufferingStrategy = bufferingStrategy != null
+                    ? bufferingStrategy
+                    : (availableHeapInBytes > 0
+                            ? BufferingStrategy.BufferingStrategyEnum.DependingOnMemory
+                            : BufferingStrategy.BufferingStrategyEnum.Default);
+            if (effectiveBufferingStrategy == BufferingStrategy.BufferingStrategyEnum.DisableBuffering) {
                 return false;
-            } else if (bufferingStrategy == BufferingStrategy.BufferingStrategyEnum.DependingOnMemory) {
+            } else if (effectiveBufferingStrategy == BufferingStrategy.BufferingStrategyEnum.DependingOnMemory) {
                 // The goal of this algorithm is to pause video loading (increasing the buffer)
                 // when available memory on device become low.
                 int loadedBytes = getAllocator().getTotalBytesAllocated();
@@ -627,7 +642,6 @@ public class ReactExoplayerView extends FrameLayout implements
                         ? source.getBufferConfig().getMinBufferMemoryReservePercent()
                         : ReactExoplayerView.DEFAULT_MIN_BUFFER_MEMORY_RESERVE;
                 long reserveMemory = (long) minBufferMemoryReservePercent * runtime.maxMemory();
-                long bufferedMs = bufferedDurationUs / (long) 1000;
                 if (reserveMemory > freeMemory && bufferedMs > 2000) {
                     // We don't have enough memory in reserve so we stop buffering to allow other components to use it instead
                     return false;
@@ -639,8 +653,19 @@ public class ReactExoplayerView extends FrameLayout implements
                 }
             }
             // "default" case or normal case for "DependingOnMemory"
-            return super.shouldContinueLoading(playbackPositionUs, bufferedDurationUs, playbackSpeed);
+            return super.shouldContinueLoading(parameters);
         }
+    }
+
+    /**
+     * Emit raw subtitle samples instead of transcoding image-based (PGS/DVD) subtitles to
+     * bitmaps at extraction time. Transcoding decodes every sample to a full-resolution
+     * bitmap in the loader thread even when the track is unselected, which can pin
+     * hundreds of MB of heap on large 4K files. With raw emission, selected tracks are
+     * decoded per-cue at render time by the legacy decoder (see initializePlayerCore).
+     */
+    private ExtractorsFactory buildExtractorsFactory() {
+        return new DefaultExtractorsFactory().experimentalSetTextTrackTranscodingEnabled(false);
     }
 
     private void initializePlayer() {
@@ -904,6 +929,13 @@ public class ReactExoplayerView extends FrameLayout implements
                 .build();
         ReactNativeVideoManager.Companion.getInstance().onInstanceCreated(instanceId, player);
         refreshDebugState();
+        int textRendererIndex = getTrackRendererIndex(C.TRACK_TYPE_TEXT);
+        if (textRendererIndex != C.INDEX_UNSET) {
+            Renderer renderer = player.getRenderer(textRendererIndex);
+            if (renderer instanceof TextRenderer) {
+                ((TextRenderer) renderer).experimentalSetLegacyDecodingEnabled(true);
+            }
+        }
         player.addListener(self);
         player.setVolume(muted ? 0.f : audioVolume * 1);
         exoPlayerView.setPlayer(player);
@@ -1256,18 +1288,20 @@ public class ReactExoplayerView extends FrameLayout implements
                 if ("asset".equals(uri.getScheme())) {
                     try {
                         DataSource.Factory assetDataSourceFactory = DataSourceUtil.buildAssetDataSourceFactory(themedReactContext, uri);
-                        mediaSourceFactory = new ProgressiveMediaSource.Factory(assetDataSourceFactory);
+                        mediaSourceFactory = new ProgressiveMediaSource.Factory(assetDataSourceFactory, buildExtractorsFactory());
                     } catch (Exception e) {
                         throw new IllegalStateException("cannot open input file:" + uri);
                     }
                 } else if ("file".equals(uri.getScheme()) ||
                         !useCache) {
                     mediaSourceFactory = new ProgressiveMediaSource.Factory(
-                            mediaDataSourceFactory
+                            mediaDataSourceFactory,
+                            buildExtractorsFactory()
                     );
                 } else {
                     mediaSourceFactory = new ProgressiveMediaSource.Factory(
-                            RNVSimpleCache.INSTANCE.getCacheFactory(buildHttpDataSourceFactory(true))
+                            RNVSimpleCache.INSTANCE.getCacheFactory(buildHttpDataSourceFactory(true)),
+                            buildExtractorsFactory()
                     );
 
                 }
