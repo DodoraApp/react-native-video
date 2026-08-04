@@ -621,17 +621,31 @@ public class ReactExoplayerView extends FrameLayout implements
                     ? config.getMaxHeapAllocationPercent()
                     : DEFAULT_MAX_HEAP_ALLOCATION_PERCENT;
             availableHeapInBytes = (int) Math.floor(activityManager.getMemoryClass() * maxHeap * 1024 * 1024);
+            BufferingStrategy.BufferingStrategyEnum effectiveStrategy = bufferingStrategy != null
+                    ? bufferingStrategy
+                    : (availableHeapInBytes > 0
+                            ? BufferingStrategy.BufferingStrategyEnum.DependingOnMemory
+                            : BufferingStrategy.BufferingStrategyEnum.Default);
             Log.i(RNV_OOM_TAG, "LoadControl: memoryClass=" + activityManager.getMemoryClass() + "MB"
                     + " maxHeapAllocationPercent=" + maxHeap
                     + " heapCapBytes=" + availableHeapInBytes
                     + " minBufferMs=" + (config.getMinBufferMs() != BufferConfig.Companion.getBufferConfigPropUnsetInt() ? config.getMinBufferMs() : DefaultLoadControl.DEFAULT_MIN_BUFFER_MS)
                     + " maxBufferMs=" + (config.getMaxBufferMs() != BufferConfig.Companion.getBufferConfigPropUnsetInt() ? config.getMaxBufferMs() : DefaultLoadControl.DEFAULT_MAX_BUFFER_MS)
-                    + " bufferingStrategy=" + bufferingStrategy);
+                    + " bufferingStrategy=" + effectiveStrategy);
         }
 
         @Override
         public boolean shouldContinueLoading(LoadControl.Parameters parameters) {
             long bufferedMs = parameters.bufferedDurationUs / 1000;
+            // The app may never pass the `bufferingStrategy` prop. A configured heap cap
+            // (maxHeapAllocationPercent < 1) is only meaningful under DependingOnMemory,
+            // so default to it when a cap is set and no explicit strategy was provided.
+            // An explicit prop (Default/DisableBuffering/DependingOnMemory) always wins.
+            BufferingStrategy.BufferingStrategyEnum effectiveBufferingStrategy = bufferingStrategy != null
+                    ? bufferingStrategy
+                    : (availableHeapInBytes > 0
+                            ? BufferingStrategy.BufferingStrategyEnum.DependingOnMemory
+                            : BufferingStrategy.BufferingStrategyEnum.Default);
             long now = SystemClock.elapsedRealtime();
             if (now - lastStatsLogMs >= 10000) {
                 lastStatsLogMs = now;
@@ -639,11 +653,12 @@ public class ReactExoplayerView extends FrameLayout implements
                         + " heapCap=" + availableHeapInBytes
                         + " heapUsed=" + (runtime.totalMemory() - runtime.freeMemory())
                         + " heapMax=" + runtime.maxMemory()
-                        + " bufferedMs=" + bufferedMs);
+                        + " bufferedMs=" + bufferedMs
+                        + " strategy=" + effectiveBufferingStrategy);
             }
-            if (bufferingStrategy == BufferingStrategy.BufferingStrategyEnum.DisableBuffering) {
+            if (effectiveBufferingStrategy == BufferingStrategy.BufferingStrategyEnum.DisableBuffering) {
                 return false;
-            } else if (bufferingStrategy == BufferingStrategy.BufferingStrategyEnum.DependingOnMemory) {
+            } else if (effectiveBufferingStrategy == BufferingStrategy.BufferingStrategyEnum.DependingOnMemory) {
                 // The goal of this algorithm is to pause video loading (increasing the buffer)
                 // when available memory on device become low.
                 int loadedBytes = getAllocator().getTotalBytesAllocated();
