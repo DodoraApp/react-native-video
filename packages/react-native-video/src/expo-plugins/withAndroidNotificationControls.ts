@@ -15,7 +15,10 @@ export const withAndroidNotificationControls: ConfigPlugin = (oldConfig) => {
       );
       return config;
     }
-    mainApplication.service?.push({
+    // The manifest usually has no <service> element yet; without it the
+    // optional chain would silently skip registration.
+    mainApplication.service = mainApplication.service ?? [];
+    mainApplication.service.push({
       '$': {
         'android:name':
           'com.twg.video.core.services.playback.VideoPlaybackService',
@@ -34,8 +37,12 @@ export const withAndroidNotificationControls: ConfigPlugin = (oldConfig) => {
         },
       ],
     });
-    config.android?.permissions?.push(
-      'android.permission.FOREGROUND_SERVICE',
+    AndroidConfig.Permissions.addPermission(
+      config.modResults,
+      'android.permission.FOREGROUND_SERVICE'
+    );
+    AndroidConfig.Permissions.addPermission(
+      config.modResults,
       'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'
     );
     return config;
