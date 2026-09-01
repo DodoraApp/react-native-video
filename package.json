@@ -43,8 +43,8 @@
     "eslint-plugin-prettier": "^5.0.1",
     "patch-package": "^8.0.0",
     "prettier": "^3.0.3",
-    "react": "18.3.1",
-    "react-native": "^0.77.0",
+    "react": "19.1.0",
+    "react-native": "^0.80.0",
     "release-it": "^20.2.0",
     "typescript": "^5.2.2",
     "typescript-eslint": "^8.13.0"
@@ -93,23 +93,23 @@
           "types": [
             {
               "type": "feat",
-              "section": "Features ✨"
+              "section": "Features \u2728"
             },
             {
               "type": "fix",
-              "section": "Bug Fixes 🐛"
+              "section": "Bug Fixes \ud83d\udc1b"
             },
             {
               "type": "refactor",
-              "section": "Code Refactoring 🛠"
+              "section": "Code Refactoring \ud83d\udee0"
             },
             {
               "type": "chore(deps)",
-              "section": "Dependency Upgrades 📦"
+              "section": "Dependency Upgrades \ud83d\udce6"
             },
             {
               "type": "docs",
-              "section": "Documentation 📚"
+              "section": "Documentation \ud83d\udcda"
             }
           ]
         },
