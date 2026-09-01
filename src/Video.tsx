@@ -24,6 +24,7 @@ import type {
   OnAudioTracksData,
   OnBandwidthUpdateData,
   OnBufferData,
+  OnChaptersData,
   OnControlsVisibilityChange,
   OnExternalPlaybackChangeData,
   OnGetLicenseData,
@@ -135,6 +136,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
       onEnd,
       onBuffer,
       onBandwidthUpdate,
+      onChapters,
       onVideoStatistics,
       onControlsVisibilityChange,
       onExternalPlaybackChange,
@@ -669,6 +671,13 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
       [onVideoStatistics],
     );
 
+    const _onChapters = useCallback(
+      (e: NativeSyntheticEvent<OnChaptersData>) => {
+        onChapters?.(e.nativeEvent);
+      },
+      [onChapters],
+    );
+
     const _onReceiveAdEvent = useCallback(
       (e: NativeSyntheticEvent<OnReceiveAdEventData>) => {
         onReceiveAdEvent?.(e.nativeEvent);
@@ -915,6 +924,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
             onBandwidthUpdate ? _onBandwidthUpdate : undefined
           }
           onVideoStatistics={onVideoStatistics ? _onVideoStatistics : undefined}
+          onChapters={onChapters ? _onChapters : undefined}
           onTimedMetadata={onTimedMetadata ? _onTimedMetadata : undefined}
           onAudioTracks={onAudioTracks ? _onAudioTracks : undefined}
           onTextTracks={onTextTracks ? _onTextTracks : undefined}

@@ -4,6 +4,7 @@ import type {
   OnAudioTracksData,
   OnBandwidthUpdateData,
   OnBufferData,
+  OnChaptersData,
   OnControlsVisibilityChange,
   OnExternalPlaybackChangeData,
   OnLoadStartData,
@@ -20,17 +21,12 @@ import type {
   OnVideoTracksData,
   OnVolumeChangeData,
 } from '../specs/VideoNativeComponent';
-import {Chapters} from './video';
 
 export type * from '../specs/VideoNativeComponent';
 
 export type AudioTrack = OnAudioTracksData['audioTracks'][number];
 export type TextTrack = OnTextTracksData['textTracks'][number];
 export type VideoTrack = OnVideoTracksData['videoTracks'][number];
-
-export type OnChaptersData = Readonly<{
-  chapters: Chapters[];
-}>;
 
 export type OnLoadData = Readonly<{
   currentTime: number;

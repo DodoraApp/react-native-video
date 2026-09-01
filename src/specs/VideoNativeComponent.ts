@@ -8,6 +8,7 @@ import type {
   Int32,
   WithDefault,
 } from 'react-native/Libraries/Types/CodegenTypes';
+import type {ChapterType} from '../types/video';
 
 // -------- There are types for native component (future codegen) --------
 // if you are looking for types for react component, see src/types/video.ts
@@ -339,6 +340,18 @@ export type OnVideoStatisticsData = Readonly<{
   audioDecoder?: string;
 }>;
 
+export type OnChaptersData = Readonly<{
+  chapters: ReadonlyArray<
+    Readonly<{
+      title: string;
+      startTime: number;
+      endTime: number;
+      type?: ChapterType;
+      uri?: string;
+    }>
+  >;
+}>;
+
 type ControlsStyles = Readonly<{
   hidePosition?: WithDefault<boolean, false>;
   hidePlayPause?: WithDefault<boolean, false>;
@@ -442,6 +455,7 @@ export interface VideoNativeProps extends ViewProps {
   onTextTrackDataChanged?: DirectEventHandler<OnTextTrackDataChangedData>; // iOS
   onVideoTracks?: DirectEventHandler<OnVideoTracksData>; // android
   onVideoStatistics?: DirectEventHandler<OnVideoStatisticsData>; // android
+  onChapters?: DirectEventHandler<OnChaptersData>; // android
 }
 
 type NativeVideoComponentType = HostComponent<VideoNativeProps>;

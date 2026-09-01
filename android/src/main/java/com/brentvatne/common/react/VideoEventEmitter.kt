@@ -406,7 +406,7 @@ class VideoEventEmitter {
 
             putString("orientation", orientation)
         }
-    
+
     private fun chaptersToArray(chapters: List<com.brentvatne.exoplayer.MediaInfo.Chapter>): WritableArray =
         Arguments.createArray().apply {
             chapters.forEach { chapter ->
