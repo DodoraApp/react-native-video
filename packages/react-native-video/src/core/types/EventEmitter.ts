@@ -1,11 +1,13 @@
 import type {
   BandwidthData,
+  onChaptersData,
   onLoadData,
   onLoadStartData,
   onPlaybackStateChangeData,
   onProgressData,
   onVolumeChangeData,
   TimedMetadata,
+  VideoStatisticsData,
 } from './Events';
 import type { TextTrack } from './TextTrack';
 import type { VideoPlayerStatus } from './VideoPlayerStatus';
@@ -68,6 +70,12 @@ export interface VideoPlayerEventEmitterBase {
   ): ListenerSubscription;
   addOnVolumeChangeListener(
     listener: (data: onVolumeChangeData) => void
+  ): ListenerSubscription;
+  addOnChaptersListener(
+    listener: (data: onChaptersData) => void
+  ): ListenerSubscription;
+  addOnVideoStatisticsListener(
+    listener: (data: VideoStatisticsData) => void
   ): ListenerSubscription;
   clearAllListeners(): void;
 }

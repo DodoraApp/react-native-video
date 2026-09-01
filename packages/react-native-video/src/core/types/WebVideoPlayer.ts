@@ -1,6 +1,9 @@
 import type { AudioTrack } from './AudioTrack';
 import type { VideoTrack } from './VideoTrack';
-import type { VideoPlayerBase } from './VideoPlayerBase';
+import type {
+  VideoPlayerBase,
+  VideoPlayerEventTarget,
+} from './VideoPlayerBase';
 
 /**
  * Extended VideoPlayer interface with web-only methods.
@@ -17,7 +20,9 @@ import type { VideoPlayerBase } from './VideoPlayerBase';
  * const audioTracks = player.getAvailableAudioTracks();
  * ```
  */
-export interface WebVideoPlayer extends VideoPlayerBase {
+export interface WebVideoPlayer
+  extends VideoPlayerBase,
+    VideoPlayerEventTarget {
   getAvailableAudioTracks(): AudioTrack[];
   selectAudioTrack(track: AudioTrack | null): void;
   readonly selectedAudioTrack?: AudioTrack;

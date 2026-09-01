@@ -103,6 +103,12 @@ class HybridVideoPlayerEventEmitter : HybridVideoPlayerEventEmitterSpec() {
   override fun addOnVolumeChangeListener(listener: (onVolumeChangeData) -> Unit) =
     addListener("onVolumeChange", listener)
 
+  override fun addOnChaptersListener(listener: (onChaptersData) -> Unit) =
+    addListener("onChapters", listener)
+
+  override fun addOnVideoStatisticsListener(listener: (VideoStatisticsData) -> Unit) =
+    addListener("onVideoStatistics", listener)
+
   override fun clearAllListeners() {
     synchronized(lock) {
       listeners.clear()

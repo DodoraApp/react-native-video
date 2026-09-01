@@ -19,8 +19,28 @@ namespace margelo::nitro::video { enum class VideoOrientation; }
 namespace margelo::nitro::video { struct onLoadStartData; }
 // Forward declaration of `SourceType` to properly resolve imports.
 namespace margelo::nitro::video { enum class SourceType; }
-// Forward declaration of `HybridVideoPlayerSourceSpec` to properly resolve imports.
-namespace margelo::nitro::video { class HybridVideoPlayerSourceSpec; }
+// Forward declaration of `VideoPlayerSourceBase` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoPlayerSourceBase; }
+// Forward declaration of `NativeVideoConfig` to properly resolve imports.
+namespace margelo::nitro::video { struct NativeVideoConfig; }
+// Forward declaration of `NativeExternalSubtitle` to properly resolve imports.
+namespace margelo::nitro::video { struct NativeExternalSubtitle; }
+// Forward declaration of `SubtitleType` to properly resolve imports.
+namespace margelo::nitro::video { enum class SubtitleType; }
+// Forward declaration of `NativeDrmParams` to properly resolve imports.
+namespace margelo::nitro::video { struct NativeDrmParams; }
+// Forward declaration of `OnGetLicensePayload` to properly resolve imports.
+namespace margelo::nitro::video { struct OnGetLicensePayload; }
+// Forward declaration of `BufferConfig` to properly resolve imports.
+namespace margelo::nitro::video { struct BufferConfig; }
+// Forward declaration of `LivePlaybackParams` to properly resolve imports.
+namespace margelo::nitro::video { struct LivePlaybackParams; }
+// Forward declaration of `Resolution` to properly resolve imports.
+namespace margelo::nitro::video { struct Resolution; }
+// Forward declaration of `CustomVideoMetadata` to properly resolve imports.
+namespace margelo::nitro::video { struct CustomVideoMetadata; }
+// Forward declaration of `VideoInformation` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoInformation; }
 // Forward declaration of `onPlaybackStateChangeData` to properly resolve imports.
 namespace margelo::nitro::video { struct onPlaybackStateChangeData; }
 // Forward declaration of `onProgressData` to properly resolve imports.
@@ -35,6 +55,14 @@ namespace margelo::nitro::video { struct TimedMetadataObject; }
 namespace margelo::nitro::video { struct TextTrack; }
 // Forward declaration of `onVolumeChangeData` to properly resolve imports.
 namespace margelo::nitro::video { struct onVolumeChangeData; }
+// Forward declaration of `onChaptersData` to properly resolve imports.
+namespace margelo::nitro::video { struct onChaptersData; }
+// Forward declaration of `Chapter` to properly resolve imports.
+namespace margelo::nitro::video { struct Chapter; }
+// Forward declaration of `ChapterType` to properly resolve imports.
+namespace margelo::nitro::video { enum class ChapterType; }
+// Forward declaration of `VideoStatisticsData` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoStatisticsData; }
 
 #include "ListenerSubscription.hpp"
 #include "JListenerSubscription.hpp"
@@ -56,9 +84,35 @@ namespace margelo::nitro::video { struct onVolumeChangeData; }
 #include "JonLoadStartData.hpp"
 #include "SourceType.hpp"
 #include "JSourceType.hpp"
-#include <memory>
-#include "HybridVideoPlayerSourceSpec.hpp"
-#include "JHybridVideoPlayerSourceSpec.hpp"
+#include "VideoPlayerSourceBase.hpp"
+#include "JVideoPlayerSourceBase.hpp"
+#include <string>
+#include "NativeVideoConfig.hpp"
+#include "JNativeVideoConfig.hpp"
+#include "NativeExternalSubtitle.hpp"
+#include <vector>
+#include "JNativeExternalSubtitle.hpp"
+#include "SubtitleType.hpp"
+#include "JSubtitleType.hpp"
+#include "NativeDrmParams.hpp"
+#include "JNativeDrmParams.hpp"
+#include <unordered_map>
+#include <NitroModules/Promise.hpp>
+#include "OnGetLicensePayload.hpp"
+#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_std__string_____OnGetLicensePayload.hpp"
+#include <NitroModules/JPromise.hpp>
+#include "JOnGetLicensePayload.hpp"
+#include "BufferConfig.hpp"
+#include "JBufferConfig.hpp"
+#include "LivePlaybackParams.hpp"
+#include "JLivePlaybackParams.hpp"
+#include "Resolution.hpp"
+#include "JResolution.hpp"
+#include "CustomVideoMetadata.hpp"
+#include "JCustomVideoMetadata.hpp"
+#include "VideoInformation.hpp"
+#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____.hpp"
+#include "JVideoInformation.hpp"
 #include "onPlaybackStateChangeData.hpp"
 #include "JFunc_void_onPlaybackStateChangeData.hpp"
 #include "JonPlaybackStateChangeData.hpp"
@@ -73,9 +127,7 @@ namespace margelo::nitro::video { struct onVolumeChangeData; }
 #include "JFunc_void_TimedMetadata.hpp"
 #include "JTimedMetadata.hpp"
 #include "TimedMetadataObject.hpp"
-#include <vector>
 #include "JTimedMetadataObject.hpp"
-#include <string>
 #include "JFunc_void_std__vector_std__string_.hpp"
 #include <NitroModules/Null.hpp>
 #include "TextTrack.hpp"
@@ -87,6 +139,16 @@ namespace margelo::nitro::video { struct onVolumeChangeData; }
 #include "onVolumeChangeData.hpp"
 #include "JFunc_void_onVolumeChangeData.hpp"
 #include "JonVolumeChangeData.hpp"
+#include "onChaptersData.hpp"
+#include "JFunc_void_onChaptersData.hpp"
+#include "JonChaptersData.hpp"
+#include "Chapter.hpp"
+#include "JChapter.hpp"
+#include "ChapterType.hpp"
+#include "JChapterType.hpp"
+#include "VideoStatisticsData.hpp"
+#include "JFunc_void_VideoStatisticsData.hpp"
+#include "JVideoStatisticsData.hpp"
 
 namespace margelo::nitro::video {
 
@@ -214,6 +276,16 @@ namespace margelo::nitro::video {
   ListenerSubscription JHybridVideoPlayerEventEmitterSpec::addOnVolumeChangeListener(const std::function<void(const onVolumeChangeData& /* data */)>& listener) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JListenerSubscription>(jni::alias_ref<JFunc_void_onVolumeChangeData::javaobject> /* listener */)>("addOnVolumeChangeListener_cxx");
     auto __result = method(_javaPart, JFunc_void_onVolumeChangeData_cxx::fromCpp(listener));
+    return __result->toCpp();
+  }
+  ListenerSubscription JHybridVideoPlayerEventEmitterSpec::addOnChaptersListener(const std::function<void(const onChaptersData& /* data */)>& listener) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JListenerSubscription>(jni::alias_ref<JFunc_void_onChaptersData::javaobject> /* listener */)>("addOnChaptersListener_cxx");
+    auto __result = method(_javaPart, JFunc_void_onChaptersData_cxx::fromCpp(listener));
+    return __result->toCpp();
+  }
+  ListenerSubscription JHybridVideoPlayerEventEmitterSpec::addOnVideoStatisticsListener(const std::function<void(const VideoStatisticsData& /* data */)>& listener) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JListenerSubscription>(jni::alias_ref<JFunc_void_VideoStatisticsData::javaobject> /* listener */)>("addOnVideoStatisticsListener_cxx");
+    auto __result = method(_javaPart, JFunc_void_VideoStatisticsData_cxx::fromCpp(listener));
     return __result->toCpp();
   }
   void JHybridVideoPlayerEventEmitterSpec::clearAllListeners() {

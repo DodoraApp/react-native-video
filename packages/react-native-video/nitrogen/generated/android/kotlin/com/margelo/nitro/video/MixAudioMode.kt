@@ -16,10 +16,10 @@ import com.facebook.proguard.annotations.DoNotStrip
 @DoNotStrip
 @Keep
 enum class MixAudioMode(@DoNotStrip @Keep val value: Int) {
-  MIXWITHOTHERS(0),
-  DONOTMIX(1),
-  DUCKOTHERS(2),
-  AUTO(3);
+  AUTO(0),
+  MIXWITHOTHERS(1),
+  DONOTMIX(2),
+  DUCKOTHERS(3);
 
   companion object
 }

@@ -18,7 +18,7 @@ public extension NativeVideoConfig {
   /**
    * Create a new instance of `NativeVideoConfig`.
    */
-  init(uri: String, externalSubtitles: [NativeExternalSubtitle]?, drm: NativeDrmParams?, headers: Dictionary<String, String>?, bufferConfig: BufferConfig?, metadata: CustomVideoMetadata?, initializeOnCreation: Bool?) {
+  init(uri: String, externalSubtitles: [NativeExternalSubtitle]?, drm: NativeDrmParams?, headers: Dictionary<String, String>?, bufferConfig: BufferConfig?, metadata: CustomVideoMetadata?, initializeOnCreation: Bool?, tunneled: Bool?, audioPassthrough: Bool?, enableWorkarounds: Bool?, enableVideoSoftwareDecoding: Bool?, reportStatistics: Bool?, matchFrameRate: Bool?) {
     self.init(std.string(uri), { () -> bridge.std__optional_std__vector_NativeExternalSubtitle__ in
       if let __unwrappedValue = externalSubtitles {
         return bridge.create_std__optional_std__vector_NativeExternalSubtitle__({ () -> bridge.std__vector_NativeExternalSubtitle_ in
@@ -63,6 +63,42 @@ public extension NativeVideoConfig {
       }
     }(), { () -> bridge.std__optional_bool_ in
       if let __unwrappedValue = initializeOnCreation {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = tunneled {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = audioPassthrough {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = enableWorkarounds {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = enableVideoSoftwareDecoding {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = reportStatistics {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = matchFrameRate {
         return bridge.create_std__optional_bool_(__unwrappedValue)
       } else {
         return .init()
@@ -127,6 +163,78 @@ public extension NativeVideoConfig {
     return { () -> Bool? in
       if bridge.has_value_std__optional_bool_(self.__initializeOnCreation) {
         let __unwrapped = bridge.get_std__optional_bool_(self.__initializeOnCreation)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var tunneled: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__tunneled) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__tunneled)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var audioPassthrough: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__audioPassthrough) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__audioPassthrough)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var enableWorkarounds: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__enableWorkarounds) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__enableWorkarounds)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var enableVideoSoftwareDecoding: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__enableVideoSoftwareDecoding) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__enableVideoSoftwareDecoding)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var reportStatistics: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__reportStatistics) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__reportStatistics)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var matchFrameRate: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__matchFrameRate) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__matchFrameRate)
         return __unwrapped
       } else {
         return nil

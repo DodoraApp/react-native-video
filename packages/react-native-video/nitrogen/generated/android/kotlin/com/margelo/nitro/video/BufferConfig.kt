@@ -37,6 +37,12 @@ data class BufferConfig(
   val backBufferDurationMs: Double?,
   @DoNotStrip
   @Keep
+  val maxHeapAllocationPercent: Double?,
+  @DoNotStrip
+  @Keep
+  val minBufferMemoryReservePercent: Double?,
+  @DoNotStrip
+  @Keep
   val preferredForwardBufferDurationMs: Double?,
   @DoNotStrip
   @Keep
@@ -61,8 +67,8 @@ data class BufferConfig(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(livePlayback: LivePlaybackParams?, minBufferMs: Double?, maxBufferMs: Double?, bufferForPlaybackMs: Double?, bufferForPlaybackAfterRebufferMs: Double?, backBufferDurationMs: Double?, preferredForwardBufferDurationMs: Double?, preferredPeakBitRate: Double?, preferredMaximumResolution: Resolution?, preferredPeakBitRateForExpensiveNetworks: Double?, preferredMaximumResolutionForExpensiveNetworks: Resolution?): BufferConfig {
-      return BufferConfig(livePlayback, minBufferMs, maxBufferMs, bufferForPlaybackMs, bufferForPlaybackAfterRebufferMs, backBufferDurationMs, preferredForwardBufferDurationMs, preferredPeakBitRate, preferredMaximumResolution, preferredPeakBitRateForExpensiveNetworks, preferredMaximumResolutionForExpensiveNetworks)
+    private fun fromCpp(livePlayback: LivePlaybackParams?, minBufferMs: Double?, maxBufferMs: Double?, bufferForPlaybackMs: Double?, bufferForPlaybackAfterRebufferMs: Double?, backBufferDurationMs: Double?, maxHeapAllocationPercent: Double?, minBufferMemoryReservePercent: Double?, preferredForwardBufferDurationMs: Double?, preferredPeakBitRate: Double?, preferredMaximumResolution: Resolution?, preferredPeakBitRateForExpensiveNetworks: Double?, preferredMaximumResolutionForExpensiveNetworks: Resolution?): BufferConfig {
+      return BufferConfig(livePlayback, minBufferMs, maxBufferMs, bufferForPlaybackMs, bufferForPlaybackAfterRebufferMs, backBufferDurationMs, maxHeapAllocationPercent, minBufferMemoryReservePercent, preferredForwardBufferDurationMs, preferredPeakBitRate, preferredMaximumResolution, preferredPeakBitRateForExpensiveNetworks, preferredMaximumResolutionForExpensiveNetworks)
     }
   }
 }

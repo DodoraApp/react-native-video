@@ -68,6 +68,20 @@ export interface BufferConfig {
    * @platform android
    */
   backBufferDurationMs?: number;
+  /**
+   * Maximum percentage of the device heap (`ActivityManager.getMemoryClass()`)
+   * that ExoPlayer buffering may consume. When set, buffering switches to a
+   * memory-dependent strategy: loading pauses once the heap cap is reached.
+   * @platform android
+   */
+  maxHeapAllocationPercent?: number;
+  /**
+   * Percentage of the runtime max heap that must stay free as a memory reserve.
+   * Buffering pauses when the reserve would be violated.
+   * @default 0
+   * @platform android
+   */
+  minBufferMemoryReservePercent?: number;
 
   // -------- iOS specific options --------
 

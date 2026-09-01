@@ -24,8 +24,28 @@ namespace margelo::nitro::video { enum class VideoOrientation; }
 namespace margelo::nitro::video { struct onLoadStartData; }
 // Forward declaration of `SourceType` to properly resolve imports.
 namespace margelo::nitro::video { enum class SourceType; }
-// Forward declaration of `HybridVideoPlayerSourceSpec` to properly resolve imports.
-namespace margelo::nitro::video { class HybridVideoPlayerSourceSpec; }
+// Forward declaration of `VideoPlayerSourceBase` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoPlayerSourceBase; }
+// Forward declaration of `NativeVideoConfig` to properly resolve imports.
+namespace margelo::nitro::video { struct NativeVideoConfig; }
+// Forward declaration of `NativeExternalSubtitle` to properly resolve imports.
+namespace margelo::nitro::video { struct NativeExternalSubtitle; }
+// Forward declaration of `SubtitleType` to properly resolve imports.
+namespace margelo::nitro::video { enum class SubtitleType; }
+// Forward declaration of `NativeDrmParams` to properly resolve imports.
+namespace margelo::nitro::video { struct NativeDrmParams; }
+// Forward declaration of `OnGetLicensePayload` to properly resolve imports.
+namespace margelo::nitro::video { struct OnGetLicensePayload; }
+// Forward declaration of `BufferConfig` to properly resolve imports.
+namespace margelo::nitro::video { struct BufferConfig; }
+// Forward declaration of `LivePlaybackParams` to properly resolve imports.
+namespace margelo::nitro::video { struct LivePlaybackParams; }
+// Forward declaration of `Resolution` to properly resolve imports.
+namespace margelo::nitro::video { struct Resolution; }
+// Forward declaration of `CustomVideoMetadata` to properly resolve imports.
+namespace margelo::nitro::video { struct CustomVideoMetadata; }
+// Forward declaration of `VideoInformation` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoInformation; }
 // Forward declaration of `onPlaybackStateChangeData` to properly resolve imports.
 namespace margelo::nitro::video { struct onPlaybackStateChangeData; }
 // Forward declaration of `onProgressData` to properly resolve imports.
@@ -40,6 +60,14 @@ namespace margelo::nitro::video { struct TimedMetadataObject; }
 namespace margelo::nitro::video { struct TextTrack; }
 // Forward declaration of `onVolumeChangeData` to properly resolve imports.
 namespace margelo::nitro::video { struct onVolumeChangeData; }
+// Forward declaration of `onChaptersData` to properly resolve imports.
+namespace margelo::nitro::video { struct onChaptersData; }
+// Forward declaration of `Chapter` to properly resolve imports.
+namespace margelo::nitro::video { struct Chapter; }
+// Forward declaration of `ChapterType` to properly resolve imports.
+namespace margelo::nitro::video { enum class ChapterType; }
+// Forward declaration of `VideoStatisticsData` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoStatisticsData; }
 
 #include "ListenerSubscription.hpp"
 #include <functional>
@@ -49,19 +77,34 @@ namespace margelo::nitro::video { struct onVolumeChangeData; }
 #include "VideoOrientation.hpp"
 #include "onLoadStartData.hpp"
 #include "SourceType.hpp"
-#include <memory>
-#include "HybridVideoPlayerSourceSpec.hpp"
+#include "VideoPlayerSourceBase.hpp"
+#include <string>
+#include "NativeVideoConfig.hpp"
+#include "NativeExternalSubtitle.hpp"
+#include <vector>
+#include "SubtitleType.hpp"
+#include "NativeDrmParams.hpp"
+#include <unordered_map>
+#include <NitroModules/Promise.hpp>
+#include "OnGetLicensePayload.hpp"
+#include "BufferConfig.hpp"
+#include "LivePlaybackParams.hpp"
+#include "Resolution.hpp"
+#include "CustomVideoMetadata.hpp"
+#include "VideoInformation.hpp"
 #include "onPlaybackStateChangeData.hpp"
 #include "onProgressData.hpp"
 #include "VideoPlayerStatus.hpp"
 #include "TimedMetadata.hpp"
 #include "TimedMetadataObject.hpp"
-#include <vector>
-#include <string>
 #include <NitroModules/Null.hpp>
 #include "TextTrack.hpp"
 #include <variant>
 #include "onVolumeChangeData.hpp"
+#include "onChaptersData.hpp"
+#include "Chapter.hpp"
+#include "ChapterType.hpp"
+#include "VideoStatisticsData.hpp"
 
 #include "ReactNativeVideo-Swift-Cxx-Umbrella.hpp"
 
@@ -259,6 +302,22 @@ namespace margelo::nitro::video {
     }
     inline ListenerSubscription addOnVolumeChangeListener(const std::function<void(const onVolumeChangeData& /* data */)>& listener) override {
       auto __result = _swiftPart.addOnVolumeChangeListener(listener);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline ListenerSubscription addOnChaptersListener(const std::function<void(const onChaptersData& /* data */)>& listener) override {
+      auto __result = _swiftPart.addOnChaptersListener(listener);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline ListenerSubscription addOnVideoStatisticsListener(const std::function<void(const VideoStatisticsData& /* data */)>& listener) override {
+      auto __result = _swiftPart.addOnVideoStatisticsListener(listener);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

@@ -10,11 +10,42 @@
 #include <fbjni/fbjni.h>
 #include "onLoadStartData.hpp"
 
-#include "HybridVideoPlayerSourceSpec.hpp"
-#include "JHybridVideoPlayerSourceSpec.hpp"
+#include "BufferConfig.hpp"
+#include "CustomVideoMetadata.hpp"
+#include "JBufferConfig.hpp"
+#include "JCustomVideoMetadata.hpp"
+#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____.hpp"
+#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_std__string_____OnGetLicensePayload.hpp"
+#include "JLivePlaybackParams.hpp"
+#include "JNativeDrmParams.hpp"
+#include "JNativeExternalSubtitle.hpp"
+#include "JNativeVideoConfig.hpp"
+#include "JOnGetLicensePayload.hpp"
+#include "JResolution.hpp"
 #include "JSourceType.hpp"
+#include "JSubtitleType.hpp"
+#include "JVideoInformation.hpp"
+#include "JVideoOrientation.hpp"
+#include "JVideoPlayerSourceBase.hpp"
+#include "LivePlaybackParams.hpp"
+#include "NativeDrmParams.hpp"
+#include "NativeExternalSubtitle.hpp"
+#include "NativeVideoConfig.hpp"
+#include "OnGetLicensePayload.hpp"
+#include "Resolution.hpp"
 #include "SourceType.hpp"
-#include <memory>
+#include "SubtitleType.hpp"
+#include "VideoInformation.hpp"
+#include "VideoOrientation.hpp"
+#include "VideoPlayerSourceBase.hpp"
+#include <NitroModules/JNICallable.hpp>
+#include <NitroModules/JPromise.hpp>
+#include <NitroModules/Promise.hpp>
+#include <functional>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace margelo::nitro::video {
 
@@ -37,11 +68,11 @@ namespace margelo::nitro::video {
       static const auto clazz = javaClassStatic();
       static const auto fieldSourceType = clazz->getField<JSourceType>("sourceType");
       jni::local_ref<JSourceType> sourceType = this->getFieldValue(fieldSourceType);
-      static const auto fieldSource = clazz->getField<JHybridVideoPlayerSourceSpec::JavaPart>("source");
-      jni::local_ref<JHybridVideoPlayerSourceSpec::JavaPart> source = this->getFieldValue(fieldSource);
+      static const auto fieldSource = clazz->getField<JVideoPlayerSourceBase>("source");
+      jni::local_ref<JVideoPlayerSourceBase> source = this->getFieldValue(fieldSource);
       return onLoadStartData(
         sourceType->toCpp(),
-        source->getJHybridVideoPlayerSourceSpec()
+        source->toCpp()
       );
     }
 
@@ -51,13 +82,13 @@ namespace margelo::nitro::video {
      */
     [[maybe_unused]]
     static jni::local_ref<JonLoadStartData::javaobject> fromCpp(const onLoadStartData& value) {
-      using JSignature = JonLoadStartData(jni::alias_ref<JSourceType>, jni::alias_ref<JHybridVideoPlayerSourceSpec::JavaPart>);
+      using JSignature = JonLoadStartData(jni::alias_ref<JSourceType>, jni::alias_ref<JVideoPlayerSourceBase>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
         clazz,
         JSourceType::fromCpp(value.sourceType),
-        std::dynamic_pointer_cast<JHybridVideoPlayerSourceSpec>(value.source)->getJavaPart()
+        JVideoPlayerSourceBase::fromCpp(value.source)
       );
     }
   };

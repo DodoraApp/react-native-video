@@ -37,7 +37,25 @@ data class NativeVideoConfig(
   val metadata: CustomVideoMetadata?,
   @DoNotStrip
   @Keep
-  val initializeOnCreation: Boolean?
+  val initializeOnCreation: Boolean?,
+  @DoNotStrip
+  @Keep
+  val tunneled: Boolean?,
+  @DoNotStrip
+  @Keep
+  val audioPassthrough: Boolean?,
+  @DoNotStrip
+  @Keep
+  val enableWorkarounds: Boolean?,
+  @DoNotStrip
+  @Keep
+  val enableVideoSoftwareDecoding: Boolean?,
+  @DoNotStrip
+  @Keep
+  val reportStatistics: Boolean?,
+  @DoNotStrip
+  @Keep
+  val matchFrameRate: Boolean?
 ) {
   /* primary constructor */
 
@@ -49,8 +67,8 @@ data class NativeVideoConfig(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(uri: String, externalSubtitles: Array<NativeExternalSubtitle>?, drm: NativeDrmParams?, headers: Map<String, String>?, bufferConfig: BufferConfig?, metadata: CustomVideoMetadata?, initializeOnCreation: Boolean?): NativeVideoConfig {
-      return NativeVideoConfig(uri, externalSubtitles, drm, headers, bufferConfig, metadata, initializeOnCreation)
+    private fun fromCpp(uri: String, externalSubtitles: Array<NativeExternalSubtitle>?, drm: NativeDrmParams?, headers: Map<String, String>?, bufferConfig: BufferConfig?, metadata: CustomVideoMetadata?, initializeOnCreation: Boolean?, tunneled: Boolean?, audioPassthrough: Boolean?, enableWorkarounds: Boolean?, enableVideoSoftwareDecoding: Boolean?, reportStatistics: Boolean?, matchFrameRate: Boolean?): NativeVideoConfig {
+      return NativeVideoConfig(uri, externalSubtitles, drm, headers, bufferConfig, metadata, initializeOnCreation, tunneled, audioPassthrough, enableWorkarounds, enableVideoSoftwareDecoding, reportStatistics, matchFrameRate)
     }
   }
 }

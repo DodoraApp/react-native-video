@@ -42,6 +42,9 @@ namespace margelo::nitro::video {
     static jni::alias_ref<JMixAudioMode> fromCpp(MixAudioMode value) {
       static const auto clazz = javaClassStatic();
       switch (value) {
+        case MixAudioMode::AUTO:
+          static const auto fieldAUTO = clazz->getStaticField<JMixAudioMode>("AUTO");
+          return clazz->getStaticFieldValue(fieldAUTO);
         case MixAudioMode::MIXWITHOTHERS:
           static const auto fieldMIXWITHOTHERS = clazz->getStaticField<JMixAudioMode>("MIXWITHOTHERS");
           return clazz->getStaticFieldValue(fieldMIXWITHOTHERS);
@@ -51,9 +54,6 @@ namespace margelo::nitro::video {
         case MixAudioMode::DUCKOTHERS:
           static const auto fieldDUCKOTHERS = clazz->getStaticField<JMixAudioMode>("DUCKOTHERS");
           return clazz->getStaticFieldValue(fieldDUCKOTHERS);
-        case MixAudioMode::AUTO:
-          static const auto fieldAUTO = clazz->getStaticField<JMixAudioMode>("AUTO");
-          return clazz->getStaticFieldValue(fieldAUTO);
         default:
           std::string stringValue = std::to_string(static_cast<int>(value));
           throw std::invalid_argument("Invalid enum value (" + stringValue + "!");

@@ -33,19 +33,19 @@ target_sources(
   # Autolinking Setup
   ../nitrogen/generated/android/ReactNativeVideoOnLoad.cpp
   # Shared Nitrogen C++ sources
+  ../nitrogen/generated/shared/c++/HybridVideoPlayerEventEmitterSpec.cpp
   ../nitrogen/generated/shared/c++/HybridVideoPlayerSpec.cpp
   ../nitrogen/generated/shared/c++/HybridVideoPlayerFactorySpec.cpp
-  ../nitrogen/generated/shared/c++/HybridVideoPlayerEventEmitterSpec.cpp
   ../nitrogen/generated/shared/c++/HybridVideoPlayerSourceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridVideoPlayerSourceFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridVideoViewViewManagerSpec.cpp
   ../nitrogen/generated/shared/c++/HybridVideoViewViewManagerFactorySpec.cpp
   # Android-specific Nitrogen C++ sources
+  ../nitrogen/generated/android/c++/JHybridVideoPlayerEventEmitterSpec.cpp
+  ../nitrogen/generated/android/c++/JVariant_NullType_TextTrack.cpp
   ../nitrogen/generated/android/c++/JHybridVideoPlayerSpec.cpp
   ../nitrogen/generated/android/c++/JVariant_NullType_HybridVideoPlayerSourceSpec.cpp
-  ../nitrogen/generated/android/c++/JVariant_NullType_TextTrack.cpp
   ../nitrogen/generated/android/c++/JHybridVideoPlayerFactorySpec.cpp
-  ../nitrogen/generated/android/c++/JHybridVideoPlayerEventEmitterSpec.cpp
   ../nitrogen/generated/android/c++/JHybridVideoPlayerSourceSpec.cpp
   ../nitrogen/generated/android/c++/JHybridVideoPlayerSourceFactorySpec.cpp
   ../nitrogen/generated/android/c++/JHybridVideoViewViewManagerSpec.cpp

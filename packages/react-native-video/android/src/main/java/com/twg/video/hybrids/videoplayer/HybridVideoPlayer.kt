@@ -262,7 +262,10 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
 
     // Emit onLoadStart
     val sourceType = if (hybridSource.uri.startsWith("http")) SourceType.NETWORK else SourceType.LOCAL
-    eventEmitter.onLoadStart(onLoadStartData(sourceType = sourceType, source = hybridSource))
+    val sourceData = VideoPlayerSourceBase(uri = hybridSource.uri, config = hybridSource.config) {
+      Promise.async { hybridSource.getAssetInformationAsync() }
+    }
+    eventEmitter.onLoadStart(onLoadStartData(sourceType = sourceType, source = sourceData))
     ensureNotReleased()
     status = VideoPlayerStatus.LOADING
     ensureNotReleased()

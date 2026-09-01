@@ -119,6 +119,16 @@ class HybridVideoPlayerEventEmitter: HybridVideoPlayerEventEmitterSpec {
     addListener(eventName: "onVolumeChange", listener: listener)
   }
 
+  // Android-only events (DodoStream fork). Registered for spec conformance;
+  // no event is ever emitted on iOS.
+  func addOnChaptersListener(listener: @escaping (onChaptersData) -> Void) throws -> ListenerSubscription {
+    addListener(eventName: "onChapters", listener: listener)
+  }
+
+  func addOnVideoStatisticsListener(listener: @escaping (VideoStatisticsData) -> Void) throws -> ListenerSubscription {
+    addListener(eventName: "onVideoStatistics", listener: listener)
+  }
+
   func clearAllListeners() throws {
     listeners.removeAll()
   }

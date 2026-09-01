@@ -16,11 +16,11 @@ import com.facebook.proguard.annotations.DoNotStrip
 @DoNotStrip
 @Keep
 enum class SubtitleType(@DoNotStrip @Keep val value: Int) {
-  AUTO(0),
-  VTT(1),
-  SRT(2),
-  SSA(3),
-  ASS(4);
+  VTT(0),
+  SRT(1),
+  SSA(2),
+  ASS(3),
+  AUTO(4);
 
   companion object
 }

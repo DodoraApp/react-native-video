@@ -15,14 +15,14 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
-#include "JHybridVideoPlayerSpec.hpp"
-#include "JHybridVideoPlayerFactorySpec.hpp"
 #include "JHybridVideoPlayerEventEmitterSpec.hpp"
 #include "JFunc_void.hpp"
 #include "JFunc_void_bool.hpp"
 #include "JFunc_void_BandwidthData.hpp"
 #include "JFunc_void_onLoadData.hpp"
 #include "JFunc_void_onLoadStartData.hpp"
+#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_std__string_____OnGetLicensePayload.hpp"
+#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____.hpp"
 #include "JFunc_void_onPlaybackStateChangeData.hpp"
 #include "JFunc_void_double.hpp"
 #include "JFunc_void_onProgressData.hpp"
@@ -31,8 +31,11 @@
 #include "JFunc_void_std__vector_std__string_.hpp"
 #include "JFunc_void_std__optional_std__variant_nitro__NullType__TextTrack__.hpp"
 #include "JFunc_void_onVolumeChangeData.hpp"
+#include "JFunc_void_onChaptersData.hpp"
+#include "JFunc_void_VideoStatisticsData.hpp"
+#include "JHybridVideoPlayerSpec.hpp"
+#include "JHybridVideoPlayerFactorySpec.hpp"
 #include "JHybridVideoPlayerSourceSpec.hpp"
-#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_std__string_____OnGetLicensePayload.hpp"
 #include "JHybridVideoPlayerSourceFactorySpec.hpp"
 #include "JHybridVideoViewViewManagerSpec.hpp"
 #include "JHybridVideoViewViewManagerFactorySpec.hpp"
@@ -76,14 +79,14 @@ void registerAllNatives() {
   using namespace margelo::nitro::video;
 
   // Register native JNI methods
-  margelo::nitro::video::JHybridVideoPlayerSpec::CxxPart::registerNatives();
-  margelo::nitro::video::JHybridVideoPlayerFactorySpec::CxxPart::registerNatives();
   margelo::nitro::video::JHybridVideoPlayerEventEmitterSpec::CxxPart::registerNatives();
   margelo::nitro::video::JFunc_void_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_bool_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_BandwidthData_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_onLoadData_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_onLoadStartData_cxx::registerNatives();
+  margelo::nitro::video::JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_std__string_____OnGetLicensePayload_cxx::registerNatives();
+  margelo::nitro::video::JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation_____cxx::registerNatives();
   margelo::nitro::video::JFunc_void_onPlaybackStateChangeData_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_double_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_onProgressData_cxx::registerNatives();
@@ -92,8 +95,11 @@ void registerAllNatives() {
   margelo::nitro::video::JFunc_void_std__vector_std__string__cxx::registerNatives();
   margelo::nitro::video::JFunc_void_std__optional_std__variant_nitro__NullType__TextTrack___cxx::registerNatives();
   margelo::nitro::video::JFunc_void_onVolumeChangeData_cxx::registerNatives();
+  margelo::nitro::video::JFunc_void_onChaptersData_cxx::registerNatives();
+  margelo::nitro::video::JFunc_void_VideoStatisticsData_cxx::registerNatives();
+  margelo::nitro::video::JHybridVideoPlayerSpec::CxxPart::registerNatives();
+  margelo::nitro::video::JHybridVideoPlayerFactorySpec::CxxPart::registerNatives();
   margelo::nitro::video::JHybridVideoPlayerSourceSpec::CxxPart::registerNatives();
-  margelo::nitro::video::JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_std__string_____OnGetLicensePayload_cxx::registerNatives();
   margelo::nitro::video::JHybridVideoPlayerSourceFactorySpec::CxxPart::registerNatives();
   margelo::nitro::video::JHybridVideoViewViewManagerSpec::CxxPart::registerNatives();
   margelo::nitro::video::JHybridVideoViewViewManagerFactorySpec::CxxPart::registerNatives();

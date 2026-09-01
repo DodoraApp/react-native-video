@@ -61,6 +61,52 @@ export type VideoConfig = {
    * @default true
    */
   initializeOnCreation?: boolean;
+
+  // -------- Fork-specific Android options (DodoStream) --------
+
+  /**
+   * Enables ExoPlayer tunnelled (secure hardware) playback.
+   * @default false
+   * @platform android
+   */
+  tunneled?: boolean;
+  /**
+   * Enables audio passthrough (bitstreaming) for compressed audio formats
+   * (Dolby TrueHD, DTS-HD, DTS, E-AC3, AC3, AC4) and audio offload.
+   * Requires compatible audio hardware (HDMI receiver, soundbar, etc.).
+   * @default false
+   * @platform android
+   */
+  audioPassthrough?: boolean;
+  /**
+   * Enables workarounds for Dolby Vision profile 7 content on devices without
+   * a DV profile 7 decoder (falls back to HEVC decoding).
+   * @default false
+   * @platform android
+   */
+  enableWorkarounds?: boolean;
+  /**
+   * Enables FFmpeg software video decoding (nextlib). Hardware decoding is
+   * always preferred when available; when disabled the FFmpeg video renderer
+   * is removed entirely.
+   * @default false
+   * @platform android
+   */
+  enableVideoSoftwareDecoding?: boolean;
+  /**
+   * Reports playback statistics through the `onVideoStatistics` event
+   * (codecs, resolution, frame rate, bitrate, decoder names, …).
+   * @default false
+   * @platform android
+   */
+  reportStatistics?: boolean;
+  /**
+   * Matches the device display refresh rate to the video frame rate during
+   * playback (automatic frame-rate switching, API 23+).
+   * @default false
+   * @platform android
+   */
+  matchFrameRate?: boolean;
 };
 
 // @internal

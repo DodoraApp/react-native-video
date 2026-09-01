@@ -16,9 +16,38 @@
 #include "JonLoadStartData.hpp"
 #include "SourceType.hpp"
 #include "JSourceType.hpp"
-#include <memory>
-#include "HybridVideoPlayerSourceSpec.hpp"
-#include "JHybridVideoPlayerSourceSpec.hpp"
+#include "VideoPlayerSourceBase.hpp"
+#include "JVideoPlayerSourceBase.hpp"
+#include <string>
+#include "NativeVideoConfig.hpp"
+#include "JNativeVideoConfig.hpp"
+#include "NativeExternalSubtitle.hpp"
+#include <vector>
+#include <optional>
+#include "JNativeExternalSubtitle.hpp"
+#include "SubtitleType.hpp"
+#include "JSubtitleType.hpp"
+#include "NativeDrmParams.hpp"
+#include "JNativeDrmParams.hpp"
+#include <unordered_map>
+#include <NitroModules/Promise.hpp>
+#include "OnGetLicensePayload.hpp"
+#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_std__string_____OnGetLicensePayload.hpp"
+#include <NitroModules/JPromise.hpp>
+#include "JOnGetLicensePayload.hpp"
+#include "BufferConfig.hpp"
+#include "JBufferConfig.hpp"
+#include "LivePlaybackParams.hpp"
+#include "JLivePlaybackParams.hpp"
+#include "Resolution.hpp"
+#include "JResolution.hpp"
+#include "CustomVideoMetadata.hpp"
+#include "JCustomVideoMetadata.hpp"
+#include "VideoInformation.hpp"
+#include "JFunc_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____.hpp"
+#include "JVideoInformation.hpp"
+#include "VideoOrientation.hpp"
+#include "JVideoOrientation.hpp"
 
 namespace margelo::nitro::video {
 

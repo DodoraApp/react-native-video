@@ -22,7 +22,7 @@ data class onLoadStartData(
   val sourceType: SourceType,
   @DoNotStrip
   @Keep
-  val source: HybridVideoPlayerSourceSpec
+  val source: VideoPlayerSourceBase
 ) {
   /* primary constructor */
 
@@ -34,7 +34,7 @@ data class onLoadStartData(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(sourceType: SourceType, source: HybridVideoPlayerSourceSpec): onLoadStartData {
+    private fun fromCpp(sourceType: SourceType, source: VideoPlayerSourceBase): onLoadStartData {
       return onLoadStartData(sourceType, source)
     }
   }

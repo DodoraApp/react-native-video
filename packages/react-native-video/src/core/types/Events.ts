@@ -95,6 +95,17 @@ export interface VideoPlayerEvents {
    * Called when the player status changes.
    */
   onStatusChange: (status: VideoPlayerStatus) => void;
+  /**
+   * Called when chapters are extracted from the media (FFmpeg-based analysis).
+   * @platform Android
+   */
+  onChapters: (data: onChaptersData) => void;
+  /**
+   * Called when playback statistics change (codecs, resolution, frame rate, bitrate, decoders).
+   * Only emitted when `reportStatistics` is enabled in the source config.
+   * @platform Android
+   */
+  onVideoStatistics: (data: VideoStatisticsData) => void;
 }
 
 export interface JSVideoPlayerEvents {
@@ -232,6 +243,106 @@ export interface onVolumeChangeData {
   muted: boolean;
 }
 
+/**
+ * The type of a chapter based on its title and position in the video.
+ */
+export type ChapterType = 'RECAP' | 'PREVIEW' | 'INTRO' | 'CREDITS' | 'UNKNOWN';
+
+/**
+ * A single chapter extracted from the media.
+ */
+export interface Chapter {
+  /**
+   * The chapter title.
+   */
+  title: string;
+  /**
+   * The chapter start time in seconds.
+   */
+  startTime: number;
+  /**
+   * The chapter end time in seconds.
+   */
+  endTime: number;
+  /**
+   * The chapter type inferred from its title and position.
+   */
+  type: ChapterType;
+}
+
+/**
+ * Data for the `onChapters` event.
+ */
+export interface onChaptersData {
+  /**
+   * The chapters of the video.
+   */
+  chapters: Chapter[];
+}
+
+/**
+ * Human-readable playback statistics, emitted by the `onVideoStatistics` event.
+ * All fields are optional — only known values are reported.
+ */
+export interface VideoStatisticsData {
+  /**
+   * Stream type derived from the content type (e.g. HLS/DASH/Progressive).
+   */
+  streamType?: string;
+  /**
+   * Human-friendly container name with MIME in parentheses when known (e.g. "MP4 (video/mp4)").
+   */
+  container?: string;
+  /**
+   * Human-friendly codec names with MIME in parentheses when known (e.g. "HEVC (video/hevc)").
+   */
+  videoCodecName?: string;
+  /**
+   * Human-friendly audio codec name.
+   */
+  audioCodecName?: string;
+  /**
+   * Human-friendly values (e.g. "1920×1080", "29.97 fps").
+   */
+  resolution?: string;
+  /**
+   * The video frame rate as a human-friendly string (e.g. "29.97 fps").
+   */
+  frameRate?: string;
+  /**
+   * Combined bitrate (e.g. "Video 4.20 Mbps, Audio 192 kbps").
+   */
+  bitrate?: string;
+  /**
+   * Human-friendly profile/level summary (e.g. "HDR10 (PQ), Main 10@Main Tier 5.1").
+   */
+  profileLevel?: string;
+  /**
+   * Human-friendly decoded format summaries.
+   */
+  decodedVideoFormat?: string;
+  /**
+   * Human-friendly decoded audio format.
+   */
+  decodedAudioFormat?: string;
+  /**
+   * Human-friendly channel display (e.g. "6 (5.1)").
+   */
+  decodedAudioChannels?: string;
+  /**
+   * Human-friendly channel layout (e.g. "5.1").
+   */
+  audioLayout?: string;
+  /**
+   * The video decoder name (e.g. "c2.android.avc.decoder").
+   */
+  videoDecoder?: string;
+  /**
+   * The audio decoder name.
+   */
+  audioDecoder?: string;
+}
+
 type CheckAllAndOnly<T, A extends readonly (keyof T)[]> =
   // Missing keys?
   Exclude<keyof T, A[number]> extends never
@@ -268,7 +379,9 @@ export const ALL_PLAYER_EVENTS: (keyof AllPlayerEvents)[] =
     'onTextTrackDataChanged',
     'onTrackChange',
     'onVolumeChange',
-    'onStatusChange'
+    'onStatusChange',
+    'onChapters',
+    'onVideoStatistics'
   );
 
 export const ALL_VIEW_EVENTS: (keyof VideoViewEvents)[] =

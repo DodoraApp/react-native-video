@@ -11,13 +11,18 @@ import {
   tryParseNativeVideoError,
   VideoRuntimeError,
 } from './types/VideoError';
-import type { VideoPlayerBase } from './types/VideoPlayerBase';
+import type {
+  VideoPlayerBase,
+  VideoPlayerEventTarget,
+} from './types/VideoPlayerBase';
 import type { VideoPlayerStatus } from './types/VideoPlayerStatus';
 import { createPlayer } from './utils/playerFactory';
 import { createSource } from './utils/sourceFactory';
 import { VideoPlayerEvents } from './events/VideoPlayerEvents';
 
-class VideoPlayer extends VideoPlayerEvents implements VideoPlayerBase {
+class VideoPlayer
+  extends VideoPlayerEvents
+  implements VideoPlayerBase, VideoPlayerEventTarget {
   private _player: VideoPlayerImpl | undefined;
   private _releaseTimeout: ReturnType<typeof setTimeout> | undefined;
 

@@ -47,6 +47,10 @@ namespace margelo::nitro::video {
       jni::local_ref<jni::JDouble> bufferForPlaybackAfterRebufferMs = this->getFieldValue(fieldBufferForPlaybackAfterRebufferMs);
       static const auto fieldBackBufferDurationMs = clazz->getField<jni::JDouble>("backBufferDurationMs");
       jni::local_ref<jni::JDouble> backBufferDurationMs = this->getFieldValue(fieldBackBufferDurationMs);
+      static const auto fieldMaxHeapAllocationPercent = clazz->getField<jni::JDouble>("maxHeapAllocationPercent");
+      jni::local_ref<jni::JDouble> maxHeapAllocationPercent = this->getFieldValue(fieldMaxHeapAllocationPercent);
+      static const auto fieldMinBufferMemoryReservePercent = clazz->getField<jni::JDouble>("minBufferMemoryReservePercent");
+      jni::local_ref<jni::JDouble> minBufferMemoryReservePercent = this->getFieldValue(fieldMinBufferMemoryReservePercent);
       static const auto fieldPreferredForwardBufferDurationMs = clazz->getField<jni::JDouble>("preferredForwardBufferDurationMs");
       jni::local_ref<jni::JDouble> preferredForwardBufferDurationMs = this->getFieldValue(fieldPreferredForwardBufferDurationMs);
       static const auto fieldPreferredPeakBitRate = clazz->getField<jni::JDouble>("preferredPeakBitRate");
@@ -64,6 +68,8 @@ namespace margelo::nitro::video {
         bufferForPlaybackMs != nullptr ? std::make_optional(bufferForPlaybackMs->value()) : std::nullopt,
         bufferForPlaybackAfterRebufferMs != nullptr ? std::make_optional(bufferForPlaybackAfterRebufferMs->value()) : std::nullopt,
         backBufferDurationMs != nullptr ? std::make_optional(backBufferDurationMs->value()) : std::nullopt,
+        maxHeapAllocationPercent != nullptr ? std::make_optional(maxHeapAllocationPercent->value()) : std::nullopt,
+        minBufferMemoryReservePercent != nullptr ? std::make_optional(minBufferMemoryReservePercent->value()) : std::nullopt,
         preferredForwardBufferDurationMs != nullptr ? std::make_optional(preferredForwardBufferDurationMs->value()) : std::nullopt,
         preferredPeakBitRate != nullptr ? std::make_optional(preferredPeakBitRate->value()) : std::nullopt,
         preferredMaximumResolution != nullptr ? std::make_optional(preferredMaximumResolution->toCpp()) : std::nullopt,
@@ -78,7 +84,7 @@ namespace margelo::nitro::video {
      */
     [[maybe_unused]]
     static jni::local_ref<JBufferConfig::javaobject> fromCpp(const BufferConfig& value) {
-      using JSignature = JBufferConfig(jni::alias_ref<JLivePlaybackParams>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JResolution>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JResolution>);
+      using JSignature = JBufferConfig(jni::alias_ref<JLivePlaybackParams>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JResolution>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JResolution>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
@@ -89,6 +95,8 @@ namespace margelo::nitro::video {
         value.bufferForPlaybackMs.has_value() ? jni::JDouble::valueOf(value.bufferForPlaybackMs.value()) : nullptr,
         value.bufferForPlaybackAfterRebufferMs.has_value() ? jni::JDouble::valueOf(value.bufferForPlaybackAfterRebufferMs.value()) : nullptr,
         value.backBufferDurationMs.has_value() ? jni::JDouble::valueOf(value.backBufferDurationMs.value()) : nullptr,
+        value.maxHeapAllocationPercent.has_value() ? jni::JDouble::valueOf(value.maxHeapAllocationPercent.value()) : nullptr,
+        value.minBufferMemoryReservePercent.has_value() ? jni::JDouble::valueOf(value.minBufferMemoryReservePercent.value()) : nullptr,
         value.preferredForwardBufferDurationMs.has_value() ? jni::JDouble::valueOf(value.preferredForwardBufferDurationMs.value()) : nullptr,
         value.preferredPeakBitRate.has_value() ? jni::JDouble::valueOf(value.preferredPeakBitRate.value()) : nullptr,
         value.preferredMaximumResolution.has_value() ? JResolution::fromCpp(value.preferredMaximumResolution.value()) : nullptr,

@@ -50,6 +50,8 @@ namespace margelo::nitro::video {
     std::optional<double> bufferForPlaybackMs     SWIFT_PRIVATE;
     std::optional<double> bufferForPlaybackAfterRebufferMs     SWIFT_PRIVATE;
     std::optional<double> backBufferDurationMs     SWIFT_PRIVATE;
+    std::optional<double> maxHeapAllocationPercent     SWIFT_PRIVATE;
+    std::optional<double> minBufferMemoryReservePercent     SWIFT_PRIVATE;
     std::optional<double> preferredForwardBufferDurationMs     SWIFT_PRIVATE;
     std::optional<double> preferredPeakBitRate     SWIFT_PRIVATE;
     std::optional<Resolution> preferredMaximumResolution     SWIFT_PRIVATE;
@@ -58,7 +60,7 @@ namespace margelo::nitro::video {
 
   public:
     BufferConfig() = default;
-    explicit BufferConfig(std::optional<LivePlaybackParams> livePlayback, std::optional<double> minBufferMs, std::optional<double> maxBufferMs, std::optional<double> bufferForPlaybackMs, std::optional<double> bufferForPlaybackAfterRebufferMs, std::optional<double> backBufferDurationMs, std::optional<double> preferredForwardBufferDurationMs, std::optional<double> preferredPeakBitRate, std::optional<Resolution> preferredMaximumResolution, std::optional<double> preferredPeakBitRateForExpensiveNetworks, std::optional<Resolution> preferredMaximumResolutionForExpensiveNetworks): livePlayback(livePlayback), minBufferMs(minBufferMs), maxBufferMs(maxBufferMs), bufferForPlaybackMs(bufferForPlaybackMs), bufferForPlaybackAfterRebufferMs(bufferForPlaybackAfterRebufferMs), backBufferDurationMs(backBufferDurationMs), preferredForwardBufferDurationMs(preferredForwardBufferDurationMs), preferredPeakBitRate(preferredPeakBitRate), preferredMaximumResolution(preferredMaximumResolution), preferredPeakBitRateForExpensiveNetworks(preferredPeakBitRateForExpensiveNetworks), preferredMaximumResolutionForExpensiveNetworks(preferredMaximumResolutionForExpensiveNetworks) {}
+    explicit BufferConfig(std::optional<LivePlaybackParams> livePlayback, std::optional<double> minBufferMs, std::optional<double> maxBufferMs, std::optional<double> bufferForPlaybackMs, std::optional<double> bufferForPlaybackAfterRebufferMs, std::optional<double> backBufferDurationMs, std::optional<double> maxHeapAllocationPercent, std::optional<double> minBufferMemoryReservePercent, std::optional<double> preferredForwardBufferDurationMs, std::optional<double> preferredPeakBitRate, std::optional<Resolution> preferredMaximumResolution, std::optional<double> preferredPeakBitRateForExpensiveNetworks, std::optional<Resolution> preferredMaximumResolutionForExpensiveNetworks): livePlayback(livePlayback), minBufferMs(minBufferMs), maxBufferMs(maxBufferMs), bufferForPlaybackMs(bufferForPlaybackMs), bufferForPlaybackAfterRebufferMs(bufferForPlaybackAfterRebufferMs), backBufferDurationMs(backBufferDurationMs), maxHeapAllocationPercent(maxHeapAllocationPercent), minBufferMemoryReservePercent(minBufferMemoryReservePercent), preferredForwardBufferDurationMs(preferredForwardBufferDurationMs), preferredPeakBitRate(preferredPeakBitRate), preferredMaximumResolution(preferredMaximumResolution), preferredPeakBitRateForExpensiveNetworks(preferredPeakBitRateForExpensiveNetworks), preferredMaximumResolutionForExpensiveNetworks(preferredMaximumResolutionForExpensiveNetworks) {}
 
   public:
     friend bool operator==(const BufferConfig& lhs, const BufferConfig& rhs) = default;
@@ -80,6 +82,8 @@ namespace margelo::nitro {
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "bufferForPlaybackMs"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "bufferForPlaybackAfterRebufferMs"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "backBufferDurationMs"))),
+        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxHeapAllocationPercent"))),
+        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "minBufferMemoryReservePercent"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "preferredForwardBufferDurationMs"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "preferredPeakBitRate"))),
         JSIConverter<std::optional<margelo::nitro::video::Resolution>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "preferredMaximumResolution"))),
@@ -95,6 +99,8 @@ namespace margelo::nitro {
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "bufferForPlaybackMs"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.bufferForPlaybackMs));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "bufferForPlaybackAfterRebufferMs"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.bufferForPlaybackAfterRebufferMs));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "backBufferDurationMs"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.backBufferDurationMs));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "maxHeapAllocationPercent"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.maxHeapAllocationPercent));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "minBufferMemoryReservePercent"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.minBufferMemoryReservePercent));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "preferredForwardBufferDurationMs"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.preferredForwardBufferDurationMs));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "preferredPeakBitRate"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.preferredPeakBitRate));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "preferredMaximumResolution"), JSIConverter<std::optional<margelo::nitro::video::Resolution>>::toJSI(runtime, arg.preferredMaximumResolution));
@@ -116,6 +122,8 @@ namespace margelo::nitro {
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "bufferForPlaybackMs")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "bufferForPlaybackAfterRebufferMs")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "backBufferDurationMs")))) return false;
+      if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxHeapAllocationPercent")))) return false;
+      if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "minBufferMemoryReservePercent")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "preferredForwardBufferDurationMs")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "preferredPeakBitRate")))) return false;
       if (!JSIConverter<std::optional<margelo::nitro::video::Resolution>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "preferredMaximumResolution")))) return false;

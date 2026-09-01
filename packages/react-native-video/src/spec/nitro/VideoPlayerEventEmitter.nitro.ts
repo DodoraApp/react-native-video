@@ -1,12 +1,14 @@
 import type { HybridObject } from 'react-native-nitro-modules';
 import type {
   BandwidthData,
+  onChaptersData,
   onLoadData,
   onLoadStartData,
   onPlaybackStateChangeData,
   onProgressData,
   onVolumeChangeData,
   TimedMetadata,
+  VideoStatisticsData,
 } from '../../core/types/Events';
 import type { TextTrack } from '../../core/types/TextTrack';
 import type { VideoPlayerStatus } from '../../core/types/VideoPlayerStatus';
@@ -200,6 +202,26 @@ export interface VideoPlayerEventEmitter extends HybridObject<{
    */
   addOnVolumeChangeListener(
     listener: (data: onVolumeChangeData) => void
+  ): ListenerSubscription;
+
+  /**
+   * Adds a listener for the `onChapters` event.
+   * @see {@link VideoPlayerEvents.onChapters}
+   * @param listener - The listener to add.
+   * @returns A subscription object that can be used to remove the listener.
+   */
+  addOnChaptersListener(
+    listener: (data: onChaptersData) => void
+  ): ListenerSubscription;
+
+  /**
+   * Adds a listener for the `onVideoStatistics` event.
+   * @see {@link VideoPlayerEvents.onVideoStatistics}
+   * @param listener - The listener to add.
+   * @returns A subscription object that can be used to remove the listener.
+   */
+  addOnVideoStatisticsListener(
+    listener: (data: VideoStatisticsData) => void
   ): ListenerSubscription;
 
   /**

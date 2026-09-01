@@ -12,6 +12,10 @@
 namespace margelo::nitro::video { struct BandwidthData; }
 // Forward declaration of `BufferConfig` to properly resolve imports.
 namespace margelo::nitro::video { struct BufferConfig; }
+// Forward declaration of `ChapterType` to properly resolve imports.
+namespace margelo::nitro::video { enum class ChapterType; }
+// Forward declaration of `Chapter` to properly resolve imports.
+namespace margelo::nitro::video { struct Chapter; }
 // Forward declaration of `CustomVideoMetadata` to properly resolve imports.
 namespace margelo::nitro::video { struct CustomVideoMetadata; }
 // Forward declaration of `HybridVideoPlayerEventEmitterSpec` to properly resolve imports.
@@ -36,6 +40,8 @@ namespace margelo::nitro::video { struct LivePlaybackParams; }
 namespace margelo::nitro::video { struct NativeDrmParams; }
 // Forward declaration of `NativeExternalSubtitle` to properly resolve imports.
 namespace margelo::nitro::video { struct NativeExternalSubtitle; }
+// Forward declaration of `NativeVideoConfig` to properly resolve imports.
+namespace margelo::nitro::video { struct NativeVideoConfig; }
 // Forward declaration of `OnGetLicensePayload` to properly resolve imports.
 namespace margelo::nitro::video { struct OnGetLicensePayload; }
 // Forward declaration of `Resolution` to properly resolve imports.
@@ -54,8 +60,14 @@ namespace margelo::nitro::video { struct TimedMetadata; }
 namespace margelo::nitro::video { struct VideoInformation; }
 // Forward declaration of `VideoOrientation` to properly resolve imports.
 namespace margelo::nitro::video { enum class VideoOrientation; }
+// Forward declaration of `VideoPlayerSourceBase` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoPlayerSourceBase; }
 // Forward declaration of `VideoPlayerStatus` to properly resolve imports.
 namespace margelo::nitro::video { enum class VideoPlayerStatus; }
+// Forward declaration of `VideoStatisticsData` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoStatisticsData; }
+// Forward declaration of `onChaptersData` to properly resolve imports.
+namespace margelo::nitro::video { struct onChaptersData; }
 // Forward declaration of `onLoadData` to properly resolve imports.
 namespace margelo::nitro::video { struct onLoadData; }
 // Forward declaration of `onLoadStartData` to properly resolve imports.
@@ -86,6 +98,8 @@ namespace ReactNativeVideo { class HybridVideoViewViewManagerSpec_cxx; }
 // Include C++ defined types
 #include "BandwidthData.hpp"
 #include "BufferConfig.hpp"
+#include "Chapter.hpp"
+#include "ChapterType.hpp"
 #include "CustomVideoMetadata.hpp"
 #include "HybridVideoPlayerEventEmitterSpec.hpp"
 #include "HybridVideoPlayerFactorySpec.hpp"
@@ -98,6 +112,7 @@ namespace ReactNativeVideo { class HybridVideoViewViewManagerSpec_cxx; }
 #include "LivePlaybackParams.hpp"
 #include "NativeDrmParams.hpp"
 #include "NativeExternalSubtitle.hpp"
+#include "NativeVideoConfig.hpp"
 #include "OnGetLicensePayload.hpp"
 #include "Resolution.hpp"
 #include "SourceType.hpp"
@@ -107,7 +122,10 @@ namespace ReactNativeVideo { class HybridVideoViewViewManagerSpec_cxx; }
 #include "TimedMetadataObject.hpp"
 #include "VideoInformation.hpp"
 #include "VideoOrientation.hpp"
+#include "VideoPlayerSourceBase.hpp"
 #include "VideoPlayerStatus.hpp"
+#include "VideoStatisticsData.hpp"
+#include "onChaptersData.hpp"
 #include "onLoadData.hpp"
 #include "onLoadStartData.hpp"
 #include "onPlaybackStateChangeData.hpp"
@@ -132,42 +150,6 @@ namespace ReactNativeVideo { class HybridVideoViewViewManagerSpec_cxx; }
  */
 namespace margelo::nitro::video::bridge::swift {
 
-  // pragma MARK: std::shared_ptr<HybridVideoPlayerSourceSpec>
-  /**
-   * Specialized version of `std::shared_ptr<HybridVideoPlayerSourceSpec>`.
-   */
-  using std__shared_ptr_HybridVideoPlayerSourceSpec_ = std::shared_ptr<HybridVideoPlayerSourceSpec>;
-  std::shared_ptr<HybridVideoPlayerSourceSpec> create_std__shared_ptr_HybridVideoPlayerSourceSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
-  void* NON_NULL get_std__shared_ptr_HybridVideoPlayerSourceSpec_(std__shared_ptr_HybridVideoPlayerSourceSpec_ cppType);
-  
-  // pragma MARK: std::weak_ptr<HybridVideoPlayerSourceSpec>
-  using std__weak_ptr_HybridVideoPlayerSourceSpec_ = std::weak_ptr<HybridVideoPlayerSourceSpec>;
-  inline std__weak_ptr_HybridVideoPlayerSourceSpec_ weakify_std__shared_ptr_HybridVideoPlayerSourceSpec_(const std::shared_ptr<HybridVideoPlayerSourceSpec>& strong) noexcept { return strong; }
-  
-  // pragma MARK: std::shared_ptr<HybridVideoPlayerEventEmitterSpec>
-  /**
-   * Specialized version of `std::shared_ptr<HybridVideoPlayerEventEmitterSpec>`.
-   */
-  using std__shared_ptr_HybridVideoPlayerEventEmitterSpec_ = std::shared_ptr<HybridVideoPlayerEventEmitterSpec>;
-  std::shared_ptr<HybridVideoPlayerEventEmitterSpec> create_std__shared_ptr_HybridVideoPlayerEventEmitterSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
-  void* NON_NULL get_std__shared_ptr_HybridVideoPlayerEventEmitterSpec_(std__shared_ptr_HybridVideoPlayerEventEmitterSpec_ cppType);
-  
-  // pragma MARK: std::weak_ptr<HybridVideoPlayerEventEmitterSpec>
-  using std__weak_ptr_HybridVideoPlayerEventEmitterSpec_ = std::weak_ptr<HybridVideoPlayerEventEmitterSpec>;
-  inline std__weak_ptr_HybridVideoPlayerEventEmitterSpec_ weakify_std__shared_ptr_HybridVideoPlayerEventEmitterSpec_(const std::shared_ptr<HybridVideoPlayerEventEmitterSpec>& strong) noexcept { return strong; }
-  
-  // pragma MARK: std::shared_ptr<Promise<void>>
-  /**
-   * Specialized version of `std::shared_ptr<Promise<void>>`.
-   */
-  using std__shared_ptr_Promise_void__ = std::shared_ptr<Promise<void>>;
-  inline std::shared_ptr<Promise<void>> create_std__shared_ptr_Promise_void__() noexcept {
-    return Promise<void>::create();
-  }
-  inline PromiseHolder<void> wrap_std__shared_ptr_Promise_void__(std::shared_ptr<Promise<void>> promise) noexcept {
-    return PromiseHolder<void>(std::move(promise));
-  }
-  
   // pragma MARK: std::function<void()>
   /**
    * Specialized version of `std::function<void()>`.
@@ -188,217 +170,6 @@ namespace margelo::nitro::video::bridge::swift {
   Func_void create_Func_void(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_Wrapper wrap_Func_void(Func_void value) noexcept {
     return Func_void_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
-  /**
-   * Specialized version of `std::function<void(const std::exception_ptr&)>`.
-   */
-  using Func_void_std__exception_ptr = std::function<void(const std::exception_ptr& /* error */)>;
-  /**
-   * Wrapper class for a `std::function<void(const std::exception_ptr& / * error * /)>`, this can be used from Swift.
-   */
-  class Func_void_std__exception_ptr_Wrapper final {
-  public:
-    explicit Func_void_std__exception_ptr_Wrapper(std::function<void(const std::exception_ptr& /* error */)>&& func): _function(std::make_unique<std::function<void(const std::exception_ptr& /* error */)>>(std::move(func))) {}
-    inline void call(std::exception_ptr error) const noexcept {
-      _function->operator()(error);
-    }
-  private:
-    std::unique_ptr<std::function<void(const std::exception_ptr& /* error */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_std__exception_ptr_Wrapper wrap_Func_void_std__exception_ptr(Func_void_std__exception_ptr value) noexcept {
-    return Func_void_std__exception_ptr_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>
-  /**
-   * Wrapper struct for `std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>`.
-   * std::variant cannot be used in Swift because of a Swift bug.
-   * Not even specializing it works. So we create a wrapper struct.
-   */
-  struct std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__ final {
-    std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>> variant;
-    std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>> variant): variant(variant) { }
-    operator std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>() const noexcept {
-      return variant;
-    }
-    inline size_t index() const noexcept {
-      return variant.index();
-    }
-    inline nitro::NullType get_0() const noexcept {
-      return std::get<0>(variant);
-    }
-    inline std::shared_ptr<HybridVideoPlayerSourceSpec> get_1() const noexcept {
-      return std::get<1>(variant);
-    }
-  };
-  inline std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__ create_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(nitro::NullType value) noexcept {
-    return std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(value);
-  }
-  inline std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__ create_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(const std::shared_ptr<HybridVideoPlayerSourceSpec>& value) noexcept {
-    return std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(value);
-  }
-  
-  // pragma MARK: std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>
-  /**
-   * Specialized version of `std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>`.
-   */
-  using std__optional_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec___ = std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>;
-  inline std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>> create_std__optional_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec___(const std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>& value) noexcept {
-    return std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>(value);
-  }
-  inline bool has_value_std__optional_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec___(const std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>> get_std__optional_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec___(const std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::optional<std::string>
-  /**
-   * Specialized version of `std::optional<std::string>`.
-   */
-  using std__optional_std__string_ = std::optional<std::string>;
-  inline std::optional<std::string> create_std__optional_std__string_(const std::string& value) noexcept {
-    return std::optional<std::string>(value);
-  }
-  inline bool has_value_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline std::string get_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::vector<TextTrack>
-  /**
-   * Specialized version of `std::vector<TextTrack>`.
-   */
-  using std__vector_TextTrack_ = std::vector<TextTrack>;
-  inline std::vector<TextTrack> create_std__vector_TextTrack_(size_t size) noexcept {
-    std::vector<TextTrack> vector;
-    vector.reserve(size);
-    return vector;
-  }
-  
-  // pragma MARK: std::variant<nitro::NullType, TextTrack>
-  /**
-   * Wrapper struct for `std::variant<nitro::NullType, TextTrack>`.
-   * std::variant cannot be used in Swift because of a Swift bug.
-   * Not even specializing it works. So we create a wrapper struct.
-   */
-  struct std__variant_nitro__NullType__TextTrack_ final {
-    std::variant<nitro::NullType, TextTrack> variant;
-    std__variant_nitro__NullType__TextTrack_(std::variant<nitro::NullType, TextTrack> variant): variant(variant) { }
-    operator std::variant<nitro::NullType, TextTrack>() const noexcept {
-      return variant;
-    }
-    inline size_t index() const noexcept {
-      return variant.index();
-    }
-    inline nitro::NullType get_0() const noexcept {
-      return std::get<0>(variant);
-    }
-    inline TextTrack get_1() const noexcept {
-      return std::get<1>(variant);
-    }
-  };
-  inline std__variant_nitro__NullType__TextTrack_ create_std__variant_nitro__NullType__TextTrack_(nitro::NullType value) noexcept {
-    return std__variant_nitro__NullType__TextTrack_(value);
-  }
-  inline std__variant_nitro__NullType__TextTrack_ create_std__variant_nitro__NullType__TextTrack_(const TextTrack& value) noexcept {
-    return std__variant_nitro__NullType__TextTrack_(value);
-  }
-  
-  // pragma MARK: std::optional<std::variant<nitro::NullType, TextTrack>>
-  /**
-   * Specialized version of `std::optional<std::variant<nitro::NullType, TextTrack>>`.
-   */
-  using std__optional_std__variant_nitro__NullType__TextTrack__ = std::optional<std::variant<nitro::NullType, TextTrack>>;
-  inline std::optional<std::variant<nitro::NullType, TextTrack>> create_std__optional_std__variant_nitro__NullType__TextTrack__(const std::variant<nitro::NullType, TextTrack>& value) noexcept {
-    return std::optional<std::variant<nitro::NullType, TextTrack>>(value);
-  }
-  inline bool has_value_std__optional_std__variant_nitro__NullType__TextTrack__(const std::optional<std::variant<nitro::NullType, TextTrack>>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline std::variant<nitro::NullType, TextTrack> get_std__optional_std__variant_nitro__NullType__TextTrack__(const std::optional<std::variant<nitro::NullType, TextTrack>>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::optional<TextTrack>
-  /**
-   * Specialized version of `std::optional<TextTrack>`.
-   */
-  using std__optional_TextTrack_ = std::optional<TextTrack>;
-  inline std::optional<TextTrack> create_std__optional_TextTrack_(const TextTrack& value) noexcept {
-    return std::optional<TextTrack>(value);
-  }
-  inline bool has_value_std__optional_TextTrack_(const std::optional<TextTrack>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline TextTrack get_std__optional_TextTrack_(const std::optional<TextTrack>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::shared_ptr<HybridVideoPlayerSpec>
-  /**
-   * Specialized version of `std::shared_ptr<HybridVideoPlayerSpec>`.
-   */
-  using std__shared_ptr_HybridVideoPlayerSpec_ = std::shared_ptr<HybridVideoPlayerSpec>;
-  std::shared_ptr<HybridVideoPlayerSpec> create_std__shared_ptr_HybridVideoPlayerSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
-  void* NON_NULL get_std__shared_ptr_HybridVideoPlayerSpec_(std__shared_ptr_HybridVideoPlayerSpec_ cppType);
-  
-  // pragma MARK: std::weak_ptr<HybridVideoPlayerSpec>
-  using std__weak_ptr_HybridVideoPlayerSpec_ = std::weak_ptr<HybridVideoPlayerSpec>;
-  inline std__weak_ptr_HybridVideoPlayerSpec_ weakify_std__shared_ptr_HybridVideoPlayerSpec_(const std::shared_ptr<HybridVideoPlayerSpec>& strong) noexcept { return strong; }
-  
-  // pragma MARK: Result<std::shared_ptr<Promise<void>>>
-  using Result_std__shared_ptr_Promise_void___ = Result<std::shared_ptr<Promise<void>>>;
-  inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::shared_ptr<Promise<void>>& value) noexcept {
-    return Result<std::shared_ptr<Promise<void>>>::withValue(value);
-  }
-  inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::exception_ptr& error) noexcept {
-    return Result<std::shared_ptr<Promise<void>>>::withError(error);
-  }
-  
-  // pragma MARK: Result<std::vector<TextTrack>>
-  using Result_std__vector_TextTrack__ = Result<std::vector<TextTrack>>;
-  inline Result_std__vector_TextTrack__ create_Result_std__vector_TextTrack__(const std::vector<TextTrack>& value) noexcept {
-    return Result<std::vector<TextTrack>>::withValue(value);
-  }
-  inline Result_std__vector_TextTrack__ create_Result_std__vector_TextTrack__(const std::exception_ptr& error) noexcept {
-    return Result<std::vector<TextTrack>>::withError(error);
-  }
-  
-  // pragma MARK: Result<void>
-  using Result_void_ = Result<void>;
-  inline Result_void_ create_Result_void_() noexcept {
-    return Result<void>::withValue();
-  }
-  inline Result_void_ create_Result_void_(const std::exception_ptr& error) noexcept {
-    return Result<void>::withError(error);
-  }
-  
-  // pragma MARK: std::shared_ptr<HybridVideoPlayerFactorySpec>
-  /**
-   * Specialized version of `std::shared_ptr<HybridVideoPlayerFactorySpec>`.
-   */
-  using std__shared_ptr_HybridVideoPlayerFactorySpec_ = std::shared_ptr<HybridVideoPlayerFactorySpec>;
-  std::shared_ptr<HybridVideoPlayerFactorySpec> create_std__shared_ptr_HybridVideoPlayerFactorySpec_(void* NON_NULL swiftUnsafePointer) noexcept;
-  void* NON_NULL get_std__shared_ptr_HybridVideoPlayerFactorySpec_(std__shared_ptr_HybridVideoPlayerFactorySpec_ cppType);
-  
-  // pragma MARK: std::weak_ptr<HybridVideoPlayerFactorySpec>
-  using std__weak_ptr_HybridVideoPlayerFactorySpec_ = std::weak_ptr<HybridVideoPlayerFactorySpec>;
-  inline std__weak_ptr_HybridVideoPlayerFactorySpec_ weakify_std__shared_ptr_HybridVideoPlayerFactorySpec_(const std::shared_ptr<HybridVideoPlayerFactorySpec>& strong) noexcept { return strong; }
-  
-  // pragma MARK: Result<std::shared_ptr<HybridVideoPlayerSpec>>
-  using Result_std__shared_ptr_HybridVideoPlayerSpec__ = Result<std::shared_ptr<HybridVideoPlayerSpec>>;
-  inline Result_std__shared_ptr_HybridVideoPlayerSpec__ create_Result_std__shared_ptr_HybridVideoPlayerSpec__(const std::shared_ptr<HybridVideoPlayerSpec>& value) noexcept {
-    return Result<std::shared_ptr<HybridVideoPlayerSpec>>::withValue(value);
-  }
-  inline Result_std__shared_ptr_HybridVideoPlayerSpec__ create_Result_std__shared_ptr_HybridVideoPlayerSpec__(const std::exception_ptr& error) noexcept {
-    return Result<std::shared_ptr<HybridVideoPlayerSpec>>::withError(error);
   }
   
   // pragma MARK: std::function<void(bool /* hasAudioFocus */)>
@@ -482,235 +253,6 @@ namespace margelo::nitro::video::bridge::swift {
     return Func_void_onLoadData_Wrapper(std::move(value));
   }
   
-  // pragma MARK: std::function<void(const onLoadStartData& /* data */)>
-  /**
-   * Specialized version of `std::function<void(const onLoadStartData&)>`.
-   */
-  using Func_void_onLoadStartData = std::function<void(const onLoadStartData& /* data */)>;
-  /**
-   * Wrapper class for a `std::function<void(const onLoadStartData& / * data * /)>`, this can be used from Swift.
-   */
-  class Func_void_onLoadStartData_Wrapper final {
-  public:
-    explicit Func_void_onLoadStartData_Wrapper(std::function<void(const onLoadStartData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onLoadStartData& /* data */)>>(std::move(func))) {}
-    inline void call(onLoadStartData data) const noexcept {
-      _function->operator()(data);
-    }
-  private:
-    std::unique_ptr<std::function<void(const onLoadStartData& /* data */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_onLoadStartData create_Func_void_onLoadStartData(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_onLoadStartData_Wrapper wrap_Func_void_onLoadStartData(Func_void_onLoadStartData value) noexcept {
-    return Func_void_onLoadStartData_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::function<void(const onPlaybackStateChangeData& /* data */)>
-  /**
-   * Specialized version of `std::function<void(const onPlaybackStateChangeData&)>`.
-   */
-  using Func_void_onPlaybackStateChangeData = std::function<void(const onPlaybackStateChangeData& /* data */)>;
-  /**
-   * Wrapper class for a `std::function<void(const onPlaybackStateChangeData& / * data * /)>`, this can be used from Swift.
-   */
-  class Func_void_onPlaybackStateChangeData_Wrapper final {
-  public:
-    explicit Func_void_onPlaybackStateChangeData_Wrapper(std::function<void(const onPlaybackStateChangeData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onPlaybackStateChangeData& /* data */)>>(std::move(func))) {}
-    inline void call(onPlaybackStateChangeData data) const noexcept {
-      _function->operator()(data);
-    }
-  private:
-    std::unique_ptr<std::function<void(const onPlaybackStateChangeData& /* data */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_onPlaybackStateChangeData create_Func_void_onPlaybackStateChangeData(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_onPlaybackStateChangeData_Wrapper wrap_Func_void_onPlaybackStateChangeData(Func_void_onPlaybackStateChangeData value) noexcept {
-    return Func_void_onPlaybackStateChangeData_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::function<void(double /* rate */)>
-  /**
-   * Specialized version of `std::function<void(double)>`.
-   */
-  using Func_void_double = std::function<void(double /* rate */)>;
-  /**
-   * Wrapper class for a `std::function<void(double / * rate * /)>`, this can be used from Swift.
-   */
-  class Func_void_double_Wrapper final {
-  public:
-    explicit Func_void_double_Wrapper(std::function<void(double /* rate */)>&& func): _function(std::make_unique<std::function<void(double /* rate */)>>(std::move(func))) {}
-    inline void call(double rate) const noexcept {
-      _function->operator()(rate);
-    }
-  private:
-    std::unique_ptr<std::function<void(double /* rate */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_double create_Func_void_double(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_double_Wrapper wrap_Func_void_double(Func_void_double value) noexcept {
-    return Func_void_double_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::function<void(const onProgressData& /* data */)>
-  /**
-   * Specialized version of `std::function<void(const onProgressData&)>`.
-   */
-  using Func_void_onProgressData = std::function<void(const onProgressData& /* data */)>;
-  /**
-   * Wrapper class for a `std::function<void(const onProgressData& / * data * /)>`, this can be used from Swift.
-   */
-  class Func_void_onProgressData_Wrapper final {
-  public:
-    explicit Func_void_onProgressData_Wrapper(std::function<void(const onProgressData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onProgressData& /* data */)>>(std::move(func))) {}
-    inline void call(onProgressData data) const noexcept {
-      _function->operator()(data);
-    }
-  private:
-    std::unique_ptr<std::function<void(const onProgressData& /* data */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_onProgressData create_Func_void_onProgressData(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_onProgressData_Wrapper wrap_Func_void_onProgressData(Func_void_onProgressData value) noexcept {
-    return Func_void_onProgressData_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::function<void(VideoPlayerStatus /* status */)>
-  /**
-   * Specialized version of `std::function<void(VideoPlayerStatus)>`.
-   */
-  using Func_void_VideoPlayerStatus = std::function<void(VideoPlayerStatus /* status */)>;
-  /**
-   * Wrapper class for a `std::function<void(VideoPlayerStatus / * status * /)>`, this can be used from Swift.
-   */
-  class Func_void_VideoPlayerStatus_Wrapper final {
-  public:
-    explicit Func_void_VideoPlayerStatus_Wrapper(std::function<void(VideoPlayerStatus /* status */)>&& func): _function(std::make_unique<std::function<void(VideoPlayerStatus /* status */)>>(std::move(func))) {}
-    inline void call(int status) const noexcept {
-      _function->operator()(static_cast<VideoPlayerStatus>(status));
-    }
-  private:
-    std::unique_ptr<std::function<void(VideoPlayerStatus /* status */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_VideoPlayerStatus create_Func_void_VideoPlayerStatus(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_VideoPlayerStatus_Wrapper wrap_Func_void_VideoPlayerStatus(Func_void_VideoPlayerStatus value) noexcept {
-    return Func_void_VideoPlayerStatus_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::vector<TimedMetadataObject>
-  /**
-   * Specialized version of `std::vector<TimedMetadataObject>`.
-   */
-  using std__vector_TimedMetadataObject_ = std::vector<TimedMetadataObject>;
-  inline std::vector<TimedMetadataObject> create_std__vector_TimedMetadataObject_(size_t size) noexcept {
-    std::vector<TimedMetadataObject> vector;
-    vector.reserve(size);
-    return vector;
-  }
-  
-  // pragma MARK: std::function<void(const TimedMetadata& /* data */)>
-  /**
-   * Specialized version of `std::function<void(const TimedMetadata&)>`.
-   */
-  using Func_void_TimedMetadata = std::function<void(const TimedMetadata& /* data */)>;
-  /**
-   * Wrapper class for a `std::function<void(const TimedMetadata& / * data * /)>`, this can be used from Swift.
-   */
-  class Func_void_TimedMetadata_Wrapper final {
-  public:
-    explicit Func_void_TimedMetadata_Wrapper(std::function<void(const TimedMetadata& /* data */)>&& func): _function(std::make_unique<std::function<void(const TimedMetadata& /* data */)>>(std::move(func))) {}
-    inline void call(TimedMetadata data) const noexcept {
-      _function->operator()(data);
-    }
-  private:
-    std::unique_ptr<std::function<void(const TimedMetadata& /* data */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_TimedMetadata create_Func_void_TimedMetadata(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_TimedMetadata_Wrapper wrap_Func_void_TimedMetadata(Func_void_TimedMetadata value) noexcept {
-    return Func_void_TimedMetadata_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::vector<std::string>
-  /**
-   * Specialized version of `std::vector<std::string>`.
-   */
-  using std__vector_std__string_ = std::vector<std::string>;
-  inline std::vector<std::string> create_std__vector_std__string_(size_t size) noexcept {
-    std::vector<std::string> vector;
-    vector.reserve(size);
-    return vector;
-  }
-  
-  // pragma MARK: std::function<void(const std::vector<std::string>& /* data */)>
-  /**
-   * Specialized version of `std::function<void(const std::vector<std::string>&)>`.
-   */
-  using Func_void_std__vector_std__string_ = std::function<void(const std::vector<std::string>& /* data */)>;
-  /**
-   * Wrapper class for a `std::function<void(const std::vector<std::string>& / * data * /)>`, this can be used from Swift.
-   */
-  class Func_void_std__vector_std__string__Wrapper final {
-  public:
-    explicit Func_void_std__vector_std__string__Wrapper(std::function<void(const std::vector<std::string>& /* data */)>&& func): _function(std::make_unique<std::function<void(const std::vector<std::string>& /* data */)>>(std::move(func))) {}
-    inline void call(std::vector<std::string> data) const noexcept {
-      _function->operator()(data);
-    }
-  private:
-    std::unique_ptr<std::function<void(const std::vector<std::string>& /* data */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_std__vector_std__string_ create_Func_void_std__vector_std__string_(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_std__vector_std__string__Wrapper wrap_Func_void_std__vector_std__string_(Func_void_std__vector_std__string_ value) noexcept {
-    return Func_void_std__vector_std__string__Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>
-  /**
-   * Specialized version of `std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>&)>`.
-   */
-  using Func_void_std__optional_std__variant_nitro__NullType__TextTrack__ = std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>;
-  /**
-   * Wrapper class for a `std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& / * track * /)>`, this can be used from Swift.
-   */
-  class Func_void_std__optional_std__variant_nitro__NullType__TextTrack___Wrapper final {
-  public:
-    explicit Func_void_std__optional_std__variant_nitro__NullType__TextTrack___Wrapper(std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>&& func): _function(std::make_unique<std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>>(std::move(func))) {}
-    inline void call(std::optional<std::variant<nitro::NullType, TextTrack>> track) const noexcept {
-      _function->operator()(track);
-    }
-  private:
-    std::unique_ptr<std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_std__optional_std__variant_nitro__NullType__TextTrack__ create_Func_void_std__optional_std__variant_nitro__NullType__TextTrack__(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_std__optional_std__variant_nitro__NullType__TextTrack___Wrapper wrap_Func_void_std__optional_std__variant_nitro__NullType__TextTrack__(Func_void_std__optional_std__variant_nitro__NullType__TextTrack__ value) noexcept {
-    return Func_void_std__optional_std__variant_nitro__NullType__TextTrack___Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::function<void(const onVolumeChangeData& /* data */)>
-  /**
-   * Specialized version of `std::function<void(const onVolumeChangeData&)>`.
-   */
-  using Func_void_onVolumeChangeData = std::function<void(const onVolumeChangeData& /* data */)>;
-  /**
-   * Wrapper class for a `std::function<void(const onVolumeChangeData& / * data * /)>`, this can be used from Swift.
-   */
-  class Func_void_onVolumeChangeData_Wrapper final {
-  public:
-    explicit Func_void_onVolumeChangeData_Wrapper(std::function<void(const onVolumeChangeData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onVolumeChangeData& /* data */)>>(std::move(func))) {}
-    inline void call(onVolumeChangeData data) const noexcept {
-      _function->operator()(data);
-    }
-  private:
-    std::unique_ptr<std::function<void(const onVolumeChangeData& /* data */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_onVolumeChangeData create_Func_void_onVolumeChangeData(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_onVolumeChangeData_Wrapper wrap_Func_void_onVolumeChangeData(Func_void_onVolumeChangeData value) noexcept {
-    return Func_void_onVolumeChangeData_Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: Result<ListenerSubscription>
-  using Result_ListenerSubscription_ = Result<ListenerSubscription>;
-  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const ListenerSubscription& value) noexcept {
-    return Result<ListenerSubscription>::withValue(value);
-  }
-  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const std::exception_ptr& error) noexcept {
-    return Result<ListenerSubscription>::withError(error);
-  }
-  
   // pragma MARK: std::vector<NativeExternalSubtitle>
   /**
    * Specialized version of `std::vector<NativeExternalSubtitle>`.
@@ -734,6 +276,21 @@ namespace margelo::nitro::video::bridge::swift {
     return optional.has_value();
   }
   inline std::vector<NativeExternalSubtitle> get_std__optional_std__vector_NativeExternalSubtitle__(const std::optional<std::vector<NativeExternalSubtitle>>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<std::string>
+  /**
+   * Specialized version of `std::optional<std::string>`.
+   */
+  using std__optional_std__string_ = std::optional<std::string>;
+  inline std::optional<std::string> create_std__optional_std__string_(const std::string& value) noexcept {
+    return std::optional<std::string>(value);
+  }
+  inline bool has_value_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::string get_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
     return optional.value();
   }
   
@@ -824,6 +381,28 @@ namespace margelo::nitro::video::bridge::swift {
   Func_void_std__string create_Func_void_std__string(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_std__string_Wrapper wrap_Func_void_std__string(Func_void_std__string value) noexcept {
     return Func_void_std__string_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
+  /**
+   * Specialized version of `std::function<void(const std::exception_ptr&)>`.
+   */
+  using Func_void_std__exception_ptr = std::function<void(const std::exception_ptr& /* error */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::exception_ptr& / * error * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__exception_ptr_Wrapper final {
+  public:
+    explicit Func_void_std__exception_ptr_Wrapper(std::function<void(const std::exception_ptr& /* error */)>&& func): _function(std::make_unique<std::function<void(const std::exception_ptr& /* error */)>>(std::move(func))) {}
+    inline void call(std::exception_ptr error) const noexcept {
+      _function->operator()(error);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::exception_ptr& /* error */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__exception_ptr_Wrapper wrap_Func_void_std__exception_ptr(Func_void_std__exception_ptr value) noexcept {
+    return Func_void_std__exception_ptr_Wrapper(std::move(value));
   }
   
   // pragma MARK: std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<std::string>>>>(const OnGetLicensePayload& /* payload */)>
@@ -1005,6 +584,557 @@ namespace margelo::nitro::video::bridge::swift {
   Func_void_VideoInformation create_Func_void_VideoInformation(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_VideoInformation_Wrapper wrap_Func_void_VideoInformation(Func_void_VideoInformation value) noexcept {
     return Func_void_VideoInformation_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>()>
+  /**
+   * Specialized version of `std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>()>`.
+   */
+  using Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____ = std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>()>;
+  /**
+   * Wrapper class for a `std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>()>`, this can be used from Swift.
+   */
+  class Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation_____Wrapper final {
+  public:
+    explicit Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation_____Wrapper(std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>()>&& func): _function(std::make_unique<std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>()>>(std::move(func))) {}
+    inline std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>> call() const noexcept {
+      auto __result = _function->operator()();
+      return __result;
+    }
+  private:
+    std::unique_ptr<std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>()>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____ create_Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation_____Wrapper wrap_Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____(Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____ value) noexcept {
+    return Func_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation_____Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>`.
+   */
+  using std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____ = std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>>;
+  inline std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>> create_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____() noexcept {
+    return Promise<std::shared_ptr<Promise<VideoInformation>>>::create();
+  }
+  inline PromiseHolder<std::shared_ptr<Promise<VideoInformation>>> wrap_std__shared_ptr_Promise_std__shared_ptr_Promise_VideoInformation____(std::shared_ptr<Promise<std::shared_ptr<Promise<VideoInformation>>>> promise) noexcept {
+    return PromiseHolder<std::shared_ptr<Promise<VideoInformation>>>(std::move(promise));
+  }
+  
+  // pragma MARK: std::function<void(const std::shared_ptr<Promise<VideoInformation>>& /* result */)>
+  /**
+   * Specialized version of `std::function<void(const std::shared_ptr<Promise<VideoInformation>>&)>`.
+   */
+  using Func_void_std__shared_ptr_Promise_VideoInformation__ = std::function<void(const std::shared_ptr<Promise<VideoInformation>>& /* result */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::shared_ptr<Promise<VideoInformation>>& / * result * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__shared_ptr_Promise_VideoInformation___Wrapper final {
+  public:
+    explicit Func_void_std__shared_ptr_Promise_VideoInformation___Wrapper(std::function<void(const std::shared_ptr<Promise<VideoInformation>>& /* result */)>&& func): _function(std::make_unique<std::function<void(const std::shared_ptr<Promise<VideoInformation>>& /* result */)>>(std::move(func))) {}
+    inline void call(std::shared_ptr<Promise<VideoInformation>> result) const noexcept {
+      _function->operator()(result);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::shared_ptr<Promise<VideoInformation>>& /* result */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__shared_ptr_Promise_VideoInformation__ create_Func_void_std__shared_ptr_Promise_VideoInformation__(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__shared_ptr_Promise_VideoInformation___Wrapper wrap_Func_void_std__shared_ptr_Promise_VideoInformation__(Func_void_std__shared_ptr_Promise_VideoInformation__ value) noexcept {
+    return Func_void_std__shared_ptr_Promise_VideoInformation___Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const onLoadStartData& /* data */)>
+  /**
+   * Specialized version of `std::function<void(const onLoadStartData&)>`.
+   */
+  using Func_void_onLoadStartData = std::function<void(const onLoadStartData& /* data */)>;
+  /**
+   * Wrapper class for a `std::function<void(const onLoadStartData& / * data * /)>`, this can be used from Swift.
+   */
+  class Func_void_onLoadStartData_Wrapper final {
+  public:
+    explicit Func_void_onLoadStartData_Wrapper(std::function<void(const onLoadStartData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onLoadStartData& /* data */)>>(std::move(func))) {}
+    inline void call(onLoadStartData data) const noexcept {
+      _function->operator()(data);
+    }
+  private:
+    std::unique_ptr<std::function<void(const onLoadStartData& /* data */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_onLoadStartData create_Func_void_onLoadStartData(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_onLoadStartData_Wrapper wrap_Func_void_onLoadStartData(Func_void_onLoadStartData value) noexcept {
+    return Func_void_onLoadStartData_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const onPlaybackStateChangeData& /* data */)>
+  /**
+   * Specialized version of `std::function<void(const onPlaybackStateChangeData&)>`.
+   */
+  using Func_void_onPlaybackStateChangeData = std::function<void(const onPlaybackStateChangeData& /* data */)>;
+  /**
+   * Wrapper class for a `std::function<void(const onPlaybackStateChangeData& / * data * /)>`, this can be used from Swift.
+   */
+  class Func_void_onPlaybackStateChangeData_Wrapper final {
+  public:
+    explicit Func_void_onPlaybackStateChangeData_Wrapper(std::function<void(const onPlaybackStateChangeData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onPlaybackStateChangeData& /* data */)>>(std::move(func))) {}
+    inline void call(onPlaybackStateChangeData data) const noexcept {
+      _function->operator()(data);
+    }
+  private:
+    std::unique_ptr<std::function<void(const onPlaybackStateChangeData& /* data */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_onPlaybackStateChangeData create_Func_void_onPlaybackStateChangeData(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_onPlaybackStateChangeData_Wrapper wrap_Func_void_onPlaybackStateChangeData(Func_void_onPlaybackStateChangeData value) noexcept {
+    return Func_void_onPlaybackStateChangeData_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(double /* rate */)>
+  /**
+   * Specialized version of `std::function<void(double)>`.
+   */
+  using Func_void_double = std::function<void(double /* rate */)>;
+  /**
+   * Wrapper class for a `std::function<void(double / * rate * /)>`, this can be used from Swift.
+   */
+  class Func_void_double_Wrapper final {
+  public:
+    explicit Func_void_double_Wrapper(std::function<void(double /* rate */)>&& func): _function(std::make_unique<std::function<void(double /* rate */)>>(std::move(func))) {}
+    inline void call(double rate) const noexcept {
+      _function->operator()(rate);
+    }
+  private:
+    std::unique_ptr<std::function<void(double /* rate */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_double create_Func_void_double(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_double_Wrapper wrap_Func_void_double(Func_void_double value) noexcept {
+    return Func_void_double_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const onProgressData& /* data */)>
+  /**
+   * Specialized version of `std::function<void(const onProgressData&)>`.
+   */
+  using Func_void_onProgressData = std::function<void(const onProgressData& /* data */)>;
+  /**
+   * Wrapper class for a `std::function<void(const onProgressData& / * data * /)>`, this can be used from Swift.
+   */
+  class Func_void_onProgressData_Wrapper final {
+  public:
+    explicit Func_void_onProgressData_Wrapper(std::function<void(const onProgressData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onProgressData& /* data */)>>(std::move(func))) {}
+    inline void call(onProgressData data) const noexcept {
+      _function->operator()(data);
+    }
+  private:
+    std::unique_ptr<std::function<void(const onProgressData& /* data */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_onProgressData create_Func_void_onProgressData(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_onProgressData_Wrapper wrap_Func_void_onProgressData(Func_void_onProgressData value) noexcept {
+    return Func_void_onProgressData_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(VideoPlayerStatus /* status */)>
+  /**
+   * Specialized version of `std::function<void(VideoPlayerStatus)>`.
+   */
+  using Func_void_VideoPlayerStatus = std::function<void(VideoPlayerStatus /* status */)>;
+  /**
+   * Wrapper class for a `std::function<void(VideoPlayerStatus / * status * /)>`, this can be used from Swift.
+   */
+  class Func_void_VideoPlayerStatus_Wrapper final {
+  public:
+    explicit Func_void_VideoPlayerStatus_Wrapper(std::function<void(VideoPlayerStatus /* status */)>&& func): _function(std::make_unique<std::function<void(VideoPlayerStatus /* status */)>>(std::move(func))) {}
+    inline void call(int status) const noexcept {
+      _function->operator()(static_cast<VideoPlayerStatus>(status));
+    }
+  private:
+    std::unique_ptr<std::function<void(VideoPlayerStatus /* status */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_VideoPlayerStatus create_Func_void_VideoPlayerStatus(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_VideoPlayerStatus_Wrapper wrap_Func_void_VideoPlayerStatus(Func_void_VideoPlayerStatus value) noexcept {
+    return Func_void_VideoPlayerStatus_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::vector<TimedMetadataObject>
+  /**
+   * Specialized version of `std::vector<TimedMetadataObject>`.
+   */
+  using std__vector_TimedMetadataObject_ = std::vector<TimedMetadataObject>;
+  inline std::vector<TimedMetadataObject> create_std__vector_TimedMetadataObject_(size_t size) noexcept {
+    std::vector<TimedMetadataObject> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::function<void(const TimedMetadata& /* data */)>
+  /**
+   * Specialized version of `std::function<void(const TimedMetadata&)>`.
+   */
+  using Func_void_TimedMetadata = std::function<void(const TimedMetadata& /* data */)>;
+  /**
+   * Wrapper class for a `std::function<void(const TimedMetadata& / * data * /)>`, this can be used from Swift.
+   */
+  class Func_void_TimedMetadata_Wrapper final {
+  public:
+    explicit Func_void_TimedMetadata_Wrapper(std::function<void(const TimedMetadata& /* data */)>&& func): _function(std::make_unique<std::function<void(const TimedMetadata& /* data */)>>(std::move(func))) {}
+    inline void call(TimedMetadata data) const noexcept {
+      _function->operator()(data);
+    }
+  private:
+    std::unique_ptr<std::function<void(const TimedMetadata& /* data */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_TimedMetadata create_Func_void_TimedMetadata(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_TimedMetadata_Wrapper wrap_Func_void_TimedMetadata(Func_void_TimedMetadata value) noexcept {
+    return Func_void_TimedMetadata_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::vector<std::string>
+  /**
+   * Specialized version of `std::vector<std::string>`.
+   */
+  using std__vector_std__string_ = std::vector<std::string>;
+  inline std::vector<std::string> create_std__vector_std__string_(size_t size) noexcept {
+    std::vector<std::string> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::function<void(const std::vector<std::string>& /* data */)>
+  /**
+   * Specialized version of `std::function<void(const std::vector<std::string>&)>`.
+   */
+  using Func_void_std__vector_std__string_ = std::function<void(const std::vector<std::string>& /* data */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::vector<std::string>& / * data * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__vector_std__string__Wrapper final {
+  public:
+    explicit Func_void_std__vector_std__string__Wrapper(std::function<void(const std::vector<std::string>& /* data */)>&& func): _function(std::make_unique<std::function<void(const std::vector<std::string>& /* data */)>>(std::move(func))) {}
+    inline void call(std::vector<std::string> data) const noexcept {
+      _function->operator()(data);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::vector<std::string>& /* data */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__vector_std__string_ create_Func_void_std__vector_std__string_(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__vector_std__string__Wrapper wrap_Func_void_std__vector_std__string_(Func_void_std__vector_std__string_ value) noexcept {
+    return Func_void_std__vector_std__string__Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::variant<nitro::NullType, TextTrack>
+  /**
+   * Wrapper struct for `std::variant<nitro::NullType, TextTrack>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
+   */
+  struct std__variant_nitro__NullType__TextTrack_ final {
+    std::variant<nitro::NullType, TextTrack> variant;
+    std__variant_nitro__NullType__TextTrack_(std::variant<nitro::NullType, TextTrack> variant): variant(variant) { }
+    operator std::variant<nitro::NullType, TextTrack>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline nitro::NullType get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline TextTrack get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_nitro__NullType__TextTrack_ create_std__variant_nitro__NullType__TextTrack_(nitro::NullType value) noexcept {
+    return std__variant_nitro__NullType__TextTrack_(value);
+  }
+  inline std__variant_nitro__NullType__TextTrack_ create_std__variant_nitro__NullType__TextTrack_(const TextTrack& value) noexcept {
+    return std__variant_nitro__NullType__TextTrack_(value);
+  }
+  
+  // pragma MARK: std::optional<std::variant<nitro::NullType, TextTrack>>
+  /**
+   * Specialized version of `std::optional<std::variant<nitro::NullType, TextTrack>>`.
+   */
+  using std__optional_std__variant_nitro__NullType__TextTrack__ = std::optional<std::variant<nitro::NullType, TextTrack>>;
+  inline std::optional<std::variant<nitro::NullType, TextTrack>> create_std__optional_std__variant_nitro__NullType__TextTrack__(const std::variant<nitro::NullType, TextTrack>& value) noexcept {
+    return std::optional<std::variant<nitro::NullType, TextTrack>>(value);
+  }
+  inline bool has_value_std__optional_std__variant_nitro__NullType__TextTrack__(const std::optional<std::variant<nitro::NullType, TextTrack>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::variant<nitro::NullType, TextTrack> get_std__optional_std__variant_nitro__NullType__TextTrack__(const std::optional<std::variant<nitro::NullType, TextTrack>>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>
+  /**
+   * Specialized version of `std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>&)>`.
+   */
+  using Func_void_std__optional_std__variant_nitro__NullType__TextTrack__ = std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& / * track * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__optional_std__variant_nitro__NullType__TextTrack___Wrapper final {
+  public:
+    explicit Func_void_std__optional_std__variant_nitro__NullType__TextTrack___Wrapper(std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>&& func): _function(std::make_unique<std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>>(std::move(func))) {}
+    inline void call(std::optional<std::variant<nitro::NullType, TextTrack>> track) const noexcept {
+      _function->operator()(track);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__optional_std__variant_nitro__NullType__TextTrack__ create_Func_void_std__optional_std__variant_nitro__NullType__TextTrack__(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__optional_std__variant_nitro__NullType__TextTrack___Wrapper wrap_Func_void_std__optional_std__variant_nitro__NullType__TextTrack__(Func_void_std__optional_std__variant_nitro__NullType__TextTrack__ value) noexcept {
+    return Func_void_std__optional_std__variant_nitro__NullType__TextTrack___Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const onVolumeChangeData& /* data */)>
+  /**
+   * Specialized version of `std::function<void(const onVolumeChangeData&)>`.
+   */
+  using Func_void_onVolumeChangeData = std::function<void(const onVolumeChangeData& /* data */)>;
+  /**
+   * Wrapper class for a `std::function<void(const onVolumeChangeData& / * data * /)>`, this can be used from Swift.
+   */
+  class Func_void_onVolumeChangeData_Wrapper final {
+  public:
+    explicit Func_void_onVolumeChangeData_Wrapper(std::function<void(const onVolumeChangeData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onVolumeChangeData& /* data */)>>(std::move(func))) {}
+    inline void call(onVolumeChangeData data) const noexcept {
+      _function->operator()(data);
+    }
+  private:
+    std::unique_ptr<std::function<void(const onVolumeChangeData& /* data */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_onVolumeChangeData create_Func_void_onVolumeChangeData(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_onVolumeChangeData_Wrapper wrap_Func_void_onVolumeChangeData(Func_void_onVolumeChangeData value) noexcept {
+    return Func_void_onVolumeChangeData_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::vector<Chapter>
+  /**
+   * Specialized version of `std::vector<Chapter>`.
+   */
+  using std__vector_Chapter_ = std::vector<Chapter>;
+  inline std::vector<Chapter> create_std__vector_Chapter_(size_t size) noexcept {
+    std::vector<Chapter> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::function<void(const onChaptersData& /* data */)>
+  /**
+   * Specialized version of `std::function<void(const onChaptersData&)>`.
+   */
+  using Func_void_onChaptersData = std::function<void(const onChaptersData& /* data */)>;
+  /**
+   * Wrapper class for a `std::function<void(const onChaptersData& / * data * /)>`, this can be used from Swift.
+   */
+  class Func_void_onChaptersData_Wrapper final {
+  public:
+    explicit Func_void_onChaptersData_Wrapper(std::function<void(const onChaptersData& /* data */)>&& func): _function(std::make_unique<std::function<void(const onChaptersData& /* data */)>>(std::move(func))) {}
+    inline void call(onChaptersData data) const noexcept {
+      _function->operator()(data);
+    }
+  private:
+    std::unique_ptr<std::function<void(const onChaptersData& /* data */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_onChaptersData create_Func_void_onChaptersData(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_onChaptersData_Wrapper wrap_Func_void_onChaptersData(Func_void_onChaptersData value) noexcept {
+    return Func_void_onChaptersData_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const VideoStatisticsData& /* data */)>
+  /**
+   * Specialized version of `std::function<void(const VideoStatisticsData&)>`.
+   */
+  using Func_void_VideoStatisticsData = std::function<void(const VideoStatisticsData& /* data */)>;
+  /**
+   * Wrapper class for a `std::function<void(const VideoStatisticsData& / * data * /)>`, this can be used from Swift.
+   */
+  class Func_void_VideoStatisticsData_Wrapper final {
+  public:
+    explicit Func_void_VideoStatisticsData_Wrapper(std::function<void(const VideoStatisticsData& /* data */)>&& func): _function(std::make_unique<std::function<void(const VideoStatisticsData& /* data */)>>(std::move(func))) {}
+    inline void call(VideoStatisticsData data) const noexcept {
+      _function->operator()(data);
+    }
+  private:
+    std::unique_ptr<std::function<void(const VideoStatisticsData& /* data */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_VideoStatisticsData create_Func_void_VideoStatisticsData(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_VideoStatisticsData_Wrapper wrap_Func_void_VideoStatisticsData(Func_void_VideoStatisticsData value) noexcept {
+    return Func_void_VideoStatisticsData_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridVideoPlayerEventEmitterSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridVideoPlayerEventEmitterSpec>`.
+   */
+  using std__shared_ptr_HybridVideoPlayerEventEmitterSpec_ = std::shared_ptr<HybridVideoPlayerEventEmitterSpec>;
+  std::shared_ptr<HybridVideoPlayerEventEmitterSpec> create_std__shared_ptr_HybridVideoPlayerEventEmitterSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridVideoPlayerEventEmitterSpec_(std__shared_ptr_HybridVideoPlayerEventEmitterSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridVideoPlayerEventEmitterSpec>
+  using std__weak_ptr_HybridVideoPlayerEventEmitterSpec_ = std::weak_ptr<HybridVideoPlayerEventEmitterSpec>;
+  inline std__weak_ptr_HybridVideoPlayerEventEmitterSpec_ weakify_std__shared_ptr_HybridVideoPlayerEventEmitterSpec_(const std::shared_ptr<HybridVideoPlayerEventEmitterSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: Result<ListenerSubscription>
+  using Result_ListenerSubscription_ = Result<ListenerSubscription>;
+  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const ListenerSubscription& value) noexcept {
+    return Result<ListenerSubscription>::withValue(value);
+  }
+  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const std::exception_ptr& error) noexcept {
+    return Result<ListenerSubscription>::withError(error);
+  }
+  
+  // pragma MARK: Result<void>
+  using Result_void_ = Result<void>;
+  inline Result_void_ create_Result_void_() noexcept {
+    return Result<void>::withValue();
+  }
+  inline Result_void_ create_Result_void_(const std::exception_ptr& error) noexcept {
+    return Result<void>::withError(error);
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridVideoPlayerSourceSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridVideoPlayerSourceSpec>`.
+   */
+  using std__shared_ptr_HybridVideoPlayerSourceSpec_ = std::shared_ptr<HybridVideoPlayerSourceSpec>;
+  std::shared_ptr<HybridVideoPlayerSourceSpec> create_std__shared_ptr_HybridVideoPlayerSourceSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridVideoPlayerSourceSpec_(std__shared_ptr_HybridVideoPlayerSourceSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridVideoPlayerSourceSpec>
+  using std__weak_ptr_HybridVideoPlayerSourceSpec_ = std::weak_ptr<HybridVideoPlayerSourceSpec>;
+  inline std__weak_ptr_HybridVideoPlayerSourceSpec_ weakify_std__shared_ptr_HybridVideoPlayerSourceSpec_(const std::shared_ptr<HybridVideoPlayerSourceSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: std::shared_ptr<Promise<void>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<void>>`.
+   */
+  using std__shared_ptr_Promise_void__ = std::shared_ptr<Promise<void>>;
+  inline std::shared_ptr<Promise<void>> create_std__shared_ptr_Promise_void__() noexcept {
+    return Promise<void>::create();
+  }
+  inline PromiseHolder<void> wrap_std__shared_ptr_Promise_void__(std::shared_ptr<Promise<void>> promise) noexcept {
+    return PromiseHolder<void>(std::move(promise));
+  }
+  
+  // pragma MARK: std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>
+  /**
+   * Wrapper struct for `std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
+   */
+  struct std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__ final {
+    std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>> variant;
+    std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>> variant): variant(variant) { }
+    operator std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline nitro::NullType get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline std::shared_ptr<HybridVideoPlayerSourceSpec> get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__ create_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(nitro::NullType value) noexcept {
+    return std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(value);
+  }
+  inline std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__ create_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(const std::shared_ptr<HybridVideoPlayerSourceSpec>& value) noexcept {
+    return std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec__(value);
+  }
+  
+  // pragma MARK: std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>
+  /**
+   * Specialized version of `std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>`.
+   */
+  using std__optional_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec___ = std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>;
+  inline std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>> create_std__optional_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec___(const std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>& value) noexcept {
+    return std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>(value);
+  }
+  inline bool has_value_std__optional_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec___(const std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>> get_std__optional_std__variant_nitro__NullType__std__shared_ptr_HybridVideoPlayerSourceSpec___(const std::optional<std::variant<nitro::NullType, std::shared_ptr<HybridVideoPlayerSourceSpec>>>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::vector<TextTrack>
+  /**
+   * Specialized version of `std::vector<TextTrack>`.
+   */
+  using std__vector_TextTrack_ = std::vector<TextTrack>;
+  inline std::vector<TextTrack> create_std__vector_TextTrack_(size_t size) noexcept {
+    std::vector<TextTrack> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::optional<TextTrack>
+  /**
+   * Specialized version of `std::optional<TextTrack>`.
+   */
+  using std__optional_TextTrack_ = std::optional<TextTrack>;
+  inline std::optional<TextTrack> create_std__optional_TextTrack_(const TextTrack& value) noexcept {
+    return std::optional<TextTrack>(value);
+  }
+  inline bool has_value_std__optional_TextTrack_(const std::optional<TextTrack>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline TextTrack get_std__optional_TextTrack_(const std::optional<TextTrack>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridVideoPlayerSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridVideoPlayerSpec>`.
+   */
+  using std__shared_ptr_HybridVideoPlayerSpec_ = std::shared_ptr<HybridVideoPlayerSpec>;
+  std::shared_ptr<HybridVideoPlayerSpec> create_std__shared_ptr_HybridVideoPlayerSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridVideoPlayerSpec_(std__shared_ptr_HybridVideoPlayerSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridVideoPlayerSpec>
+  using std__weak_ptr_HybridVideoPlayerSpec_ = std::weak_ptr<HybridVideoPlayerSpec>;
+  inline std__weak_ptr_HybridVideoPlayerSpec_ weakify_std__shared_ptr_HybridVideoPlayerSpec_(const std::shared_ptr<HybridVideoPlayerSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: Result<std::shared_ptr<Promise<void>>>
+  using Result_std__shared_ptr_Promise_void___ = Result<std::shared_ptr<Promise<void>>>;
+  inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::shared_ptr<Promise<void>>& value) noexcept {
+    return Result<std::shared_ptr<Promise<void>>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<Promise<void>>>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::vector<TextTrack>>
+  using Result_std__vector_TextTrack__ = Result<std::vector<TextTrack>>;
+  inline Result_std__vector_TextTrack__ create_Result_std__vector_TextTrack__(const std::vector<TextTrack>& value) noexcept {
+    return Result<std::vector<TextTrack>>::withValue(value);
+  }
+  inline Result_std__vector_TextTrack__ create_Result_std__vector_TextTrack__(const std::exception_ptr& error) noexcept {
+    return Result<std::vector<TextTrack>>::withError(error);
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridVideoPlayerFactorySpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridVideoPlayerFactorySpec>`.
+   */
+  using std__shared_ptr_HybridVideoPlayerFactorySpec_ = std::shared_ptr<HybridVideoPlayerFactorySpec>;
+  std::shared_ptr<HybridVideoPlayerFactorySpec> create_std__shared_ptr_HybridVideoPlayerFactorySpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridVideoPlayerFactorySpec_(std__shared_ptr_HybridVideoPlayerFactorySpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridVideoPlayerFactorySpec>
+  using std__weak_ptr_HybridVideoPlayerFactorySpec_ = std::weak_ptr<HybridVideoPlayerFactorySpec>;
+  inline std__weak_ptr_HybridVideoPlayerFactorySpec_ weakify_std__shared_ptr_HybridVideoPlayerFactorySpec_(const std::shared_ptr<HybridVideoPlayerFactorySpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: Result<std::shared_ptr<HybridVideoPlayerSpec>>
+  using Result_std__shared_ptr_HybridVideoPlayerSpec__ = Result<std::shared_ptr<HybridVideoPlayerSpec>>;
+  inline Result_std__shared_ptr_HybridVideoPlayerSpec__ create_Result_std__shared_ptr_HybridVideoPlayerSpec__(const std::shared_ptr<HybridVideoPlayerSpec>& value) noexcept {
+    return Result<std::shared_ptr<HybridVideoPlayerSpec>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_HybridVideoPlayerSpec__ create_Result_std__shared_ptr_HybridVideoPlayerSpec__(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<HybridVideoPlayerSpec>>::withError(error);
   }
   
   // pragma MARK: Result<std::shared_ptr<Promise<VideoInformation>>>

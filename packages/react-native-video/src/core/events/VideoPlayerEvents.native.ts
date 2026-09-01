@@ -101,6 +101,14 @@ export class VideoPlayerEvents extends VideoPlayerEventsBase {
         return this.eventEmitter.addOnTextTrackDataChangedListener(
           callback as PlayerEvents['onTextTrackDataChanged']
         );
+      case 'onChapters':
+        return this.eventEmitter.addOnChaptersListener(
+          callback as PlayerEvents['onChapters']
+        );
+      case 'onVideoStatistics':
+        return this.eventEmitter.addOnVideoStatisticsListener(
+          callback as PlayerEvents['onVideoStatistics']
+        );
       default:
         throw new Error(`[React Native Video] Unsupported event: ${event}`);
     }

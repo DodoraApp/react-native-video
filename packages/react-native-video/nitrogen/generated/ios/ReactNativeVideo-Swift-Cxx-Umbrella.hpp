@@ -12,6 +12,10 @@
 namespace margelo::nitro::video { struct BandwidthData; }
 // Forward declaration of `BufferConfig` to properly resolve imports.
 namespace margelo::nitro::video { struct BufferConfig; }
+// Forward declaration of `ChapterType` to properly resolve imports.
+namespace margelo::nitro::video { enum class ChapterType; }
+// Forward declaration of `Chapter` to properly resolve imports.
+namespace margelo::nitro::video { struct Chapter; }
 // Forward declaration of `CustomVideoMetadata` to properly resolve imports.
 namespace margelo::nitro::video { struct CustomVideoMetadata; }
 // Forward declaration of `HybridVideoPlayerEventEmitterSpec` to properly resolve imports.
@@ -64,8 +68,14 @@ namespace margelo::nitro::video { struct TimedMetadata; }
 namespace margelo::nitro::video { struct VideoInformation; }
 // Forward declaration of `VideoOrientation` to properly resolve imports.
 namespace margelo::nitro::video { enum class VideoOrientation; }
+// Forward declaration of `VideoPlayerSourceBase` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoPlayerSourceBase; }
 // Forward declaration of `VideoPlayerStatus` to properly resolve imports.
 namespace margelo::nitro::video { enum class VideoPlayerStatus; }
+// Forward declaration of `VideoStatisticsData` to properly resolve imports.
+namespace margelo::nitro::video { struct VideoStatisticsData; }
+// Forward declaration of `onChaptersData` to properly resolve imports.
+namespace margelo::nitro::video { struct onChaptersData; }
 // Forward declaration of `onLoadData` to properly resolve imports.
 namespace margelo::nitro::video { struct onLoadData; }
 // Forward declaration of `onLoadStartData` to properly resolve imports.
@@ -80,6 +90,8 @@ namespace margelo::nitro::video { struct onVolumeChangeData; }
 // Include C++ defined types
 #include "BandwidthData.hpp"
 #include "BufferConfig.hpp"
+#include "Chapter.hpp"
+#include "ChapterType.hpp"
 #include "CustomVideoMetadata.hpp"
 #include "HybridVideoPlayerEventEmitterSpec.hpp"
 #include "HybridVideoPlayerFactorySpec.hpp"
@@ -106,7 +118,10 @@ namespace margelo::nitro::video { struct onVolumeChangeData; }
 #include "TimedMetadataObject.hpp"
 #include "VideoInformation.hpp"
 #include "VideoOrientation.hpp"
+#include "VideoPlayerSourceBase.hpp"
 #include "VideoPlayerStatus.hpp"
+#include "VideoStatisticsData.hpp"
+#include "onChaptersData.hpp"
 #include "onLoadData.hpp"
 #include "onLoadStartData.hpp"
 #include "onPlaybackStateChangeData.hpp"

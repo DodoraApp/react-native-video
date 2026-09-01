@@ -200,6 +200,24 @@ abstract class HybridVideoPlayerEventEmitterSpec: HybridObject() {
     return __result
   }
   
+  abstract fun addOnChaptersListener(listener: (data: onChaptersData) -> Unit): ListenerSubscription
+  
+  @DoNotStrip
+  @Keep
+  private fun addOnChaptersListener_cxx(listener: Func_void_onChaptersData): ListenerSubscription {
+    val __result = addOnChaptersListener(listener)
+    return __result
+  }
+  
+  abstract fun addOnVideoStatisticsListener(listener: (data: VideoStatisticsData) -> Unit): ListenerSubscription
+  
+  @DoNotStrip
+  @Keep
+  private fun addOnVideoStatisticsListener_cxx(listener: Func_void_VideoStatisticsData): ListenerSubscription {
+    val __result = addOnVideoStatisticsListener(listener)
+    return __result
+  }
+  
   @DoNotStrip
   @Keep
   abstract fun clearAllListeners(): Unit

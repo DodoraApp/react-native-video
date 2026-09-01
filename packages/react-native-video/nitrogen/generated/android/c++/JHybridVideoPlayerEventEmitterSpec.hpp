@@ -73,6 +73,8 @@ namespace margelo::nitro::video {
     ListenerSubscription addOnTextTrackDataChangedListener(const std::function<void(const std::vector<std::string>& /* data */)>& listener) override;
     ListenerSubscription addOnTrackChangeListener(const std::function<void(const std::optional<std::variant<nitro::NullType, TextTrack>>& /* track */)>& listener) override;
     ListenerSubscription addOnVolumeChangeListener(const std::function<void(const onVolumeChangeData& /* data */)>& listener) override;
+    ListenerSubscription addOnChaptersListener(const std::function<void(const onChaptersData& /* data */)>& listener) override;
+    ListenerSubscription addOnVideoStatisticsListener(const std::function<void(const VideoStatisticsData& /* data */)>& listener) override;
     void clearAllListeners() override;
 
   private:

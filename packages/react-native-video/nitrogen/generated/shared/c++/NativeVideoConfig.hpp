@@ -60,10 +60,16 @@ namespace margelo::nitro::video {
     std::optional<BufferConfig> bufferConfig     SWIFT_PRIVATE;
     std::optional<CustomVideoMetadata> metadata     SWIFT_PRIVATE;
     std::optional<bool> initializeOnCreation     SWIFT_PRIVATE;
+    std::optional<bool> tunneled     SWIFT_PRIVATE;
+    std::optional<bool> audioPassthrough     SWIFT_PRIVATE;
+    std::optional<bool> enableWorkarounds     SWIFT_PRIVATE;
+    std::optional<bool> enableVideoSoftwareDecoding     SWIFT_PRIVATE;
+    std::optional<bool> reportStatistics     SWIFT_PRIVATE;
+    std::optional<bool> matchFrameRate     SWIFT_PRIVATE;
 
   public:
     NativeVideoConfig() = default;
-    explicit NativeVideoConfig(std::string uri, std::optional<std::vector<NativeExternalSubtitle>> externalSubtitles, std::optional<NativeDrmParams> drm, std::optional<std::unordered_map<std::string, std::string>> headers, std::optional<BufferConfig> bufferConfig, std::optional<CustomVideoMetadata> metadata, std::optional<bool> initializeOnCreation): uri(uri), externalSubtitles(externalSubtitles), drm(drm), headers(headers), bufferConfig(bufferConfig), metadata(metadata), initializeOnCreation(initializeOnCreation) {}
+    explicit NativeVideoConfig(std::string uri, std::optional<std::vector<NativeExternalSubtitle>> externalSubtitles, std::optional<NativeDrmParams> drm, std::optional<std::unordered_map<std::string, std::string>> headers, std::optional<BufferConfig> bufferConfig, std::optional<CustomVideoMetadata> metadata, std::optional<bool> initializeOnCreation, std::optional<bool> tunneled, std::optional<bool> audioPassthrough, std::optional<bool> enableWorkarounds, std::optional<bool> enableVideoSoftwareDecoding, std::optional<bool> reportStatistics, std::optional<bool> matchFrameRate): uri(uri), externalSubtitles(externalSubtitles), drm(drm), headers(headers), bufferConfig(bufferConfig), metadata(metadata), initializeOnCreation(initializeOnCreation), tunneled(tunneled), audioPassthrough(audioPassthrough), enableWorkarounds(enableWorkarounds), enableVideoSoftwareDecoding(enableVideoSoftwareDecoding), reportStatistics(reportStatistics), matchFrameRate(matchFrameRate) {}
 
   public:
     // NativeVideoConfig is not equatable because these properties are not equatable: drm
@@ -85,7 +91,13 @@ namespace margelo::nitro {
         JSIConverter<std::optional<std::unordered_map<std::string, std::string>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "headers"))),
         JSIConverter<std::optional<margelo::nitro::video::BufferConfig>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "bufferConfig"))),
         JSIConverter<std::optional<margelo::nitro::video::CustomVideoMetadata>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "metadata"))),
-        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "initializeOnCreation")))
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "initializeOnCreation"))),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "tunneled"))),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "audioPassthrough"))),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableWorkarounds"))),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableVideoSoftwareDecoding"))),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "reportStatistics"))),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "matchFrameRate")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::video::NativeVideoConfig& arg) {
@@ -97,6 +109,12 @@ namespace margelo::nitro {
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "bufferConfig"), JSIConverter<std::optional<margelo::nitro::video::BufferConfig>>::toJSI(runtime, arg.bufferConfig));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "metadata"), JSIConverter<std::optional<margelo::nitro::video::CustomVideoMetadata>>::toJSI(runtime, arg.metadata));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "initializeOnCreation"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.initializeOnCreation));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "tunneled"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.tunneled));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "audioPassthrough"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.audioPassthrough));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "enableWorkarounds"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.enableWorkarounds));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "enableVideoSoftwareDecoding"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.enableVideoSoftwareDecoding));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "reportStatistics"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.reportStatistics));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "matchFrameRate"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.matchFrameRate));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -114,6 +132,12 @@ namespace margelo::nitro {
       if (!JSIConverter<std::optional<margelo::nitro::video::BufferConfig>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "bufferConfig")))) return false;
       if (!JSIConverter<std::optional<margelo::nitro::video::CustomVideoMetadata>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "metadata")))) return false;
       if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "initializeOnCreation")))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "tunneled")))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "audioPassthrough")))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableWorkarounds")))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableVideoSoftwareDecoding")))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "reportStatistics")))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "matchFrameRate")))) return false;
       return true;
     }
   };

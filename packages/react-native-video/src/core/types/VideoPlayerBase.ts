@@ -8,6 +8,20 @@ import type { VideoPlayerStatus } from './VideoPlayerStatus';
 
 import type { VideoConfig, VideoSource } from './VideoConfig';
 
+/**
+ * The event-registration surface of a player.
+ *
+ * Kept separate from {@link VideoPlayerBase} on purpose: `addEventListener` is
+ * implemented in JavaScript on top of the player's event emitter, so it is not
+ * part of the native (Nitro) hybrid surface.
+ */
+export interface VideoPlayerEventTarget {
+  addEventListener<Event extends keyof AllPlayerEvents>(
+    event: Event,
+    callback: AllPlayerEvents[Event]
+  ): ListenerSubscription;
+}
+
 export interface VideoPlayerBase {
   /**
    * The source of the video.
@@ -194,9 +208,4 @@ export interface VideoPlayerBase {
    * Releases the player's resources. After calling this, the player is no longer usable.
    */
   release(): void;
-
-  addEventListener<Event extends keyof AllPlayerEvents>(
-    event: Event,
-    callback: AllPlayerEvents[Event]
-  ): ListenerSubscription;
 }
