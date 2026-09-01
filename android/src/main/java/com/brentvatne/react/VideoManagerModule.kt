@@ -1,5 +1,6 @@
 package com.brentvatne.react
 
+import android.annotation.SuppressLint
 import com.brentvatne.common.api.Source
 import com.brentvatne.exoplayer.ReactExoplayerView
 import com.facebook.react.bridge.Promise
@@ -15,6 +16,9 @@ import kotlin.math.roundToInt
 class VideoManagerModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     override fun getName(): String = REACT_CLASS
 
+    // Lint cannot prove the ternary constant because BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+    // is a runtime value, so it raises WrongConstant on both branches (both are valid UIManagerType).
+    @SuppressLint("WrongConstant")
     private fun performOnPlayerView(reactTag: Int, callback: (ReactExoplayerView?) -> Unit) {
         UiThreadUtil.runOnUiThread {
             try {
