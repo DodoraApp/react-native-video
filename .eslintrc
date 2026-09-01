@@ -10,6 +10,14 @@
   "rules": {
     "no-trailing-spaces": 1
   },
+  "overrides": [
+    {
+      "files": ["tests/**"],
+      "env": {
+        "jest": true
+      }
+    }
+  ],
   "parserOptions": {
     "requireConfigFile": false
   }
