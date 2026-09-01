@@ -1,5 +1,6 @@
 package com.margelo.nitro.video
 
+import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -29,8 +30,10 @@ import androidx.media3.extractor.metadata.id3.Id3Frame
 import androidx.media3.extractor.metadata.id3.TextInformationFrame
 import androidx.media3.ui.PlayerView
 import com.facebook.proguard.annotations.DoNotStrip
+import com.facebook.react.bridge.ReactApplicationContext
 import com.margelo.nitro.NitroModules
 import com.margelo.nitro.core.Promise
+import com.twg.video.core.player.DisplayModeHelper
 import com.twg.video.core.player.MediaInfo
 import com.twg.video.core.player.MediaInfoLoader
 import com.twg.video.core.player.RNVPlayerStatisticsListener
@@ -115,6 +118,7 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
 
   // DodoStream fork: playback statistics and chapters/media-info extraction
   private var statisticsListener: RNVPlayerStatisticsListener? = null
+  private val displayModeHelper = DisplayModeHelper()
   private var extractedMediaInfo: MediaInfo? = null
   private var mediaInfoLoadGeneration = 0
   private val mediaInfoExecutor = Executors.newSingleThreadExecutor()
@@ -282,6 +286,10 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
     statsListener.setStreamType(streamTypeFromUri(hybridSource.uri))
     statisticsListener = statsListener
     player.addAnalyticsListener(statsListener)
+
+    // Automatic frame-rate matching (DodoStream fork)
+    displayModeHelper.setEnabled(config.matchFrameRate == true)
+    displayModeHelper.setActivity(currentActivity())
 
     player.setMediaSource(hybridSource.mediaSource)
     ensureNotReleased()
@@ -475,11 +483,12 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
       player.removeAnalyticsListener(analyticsListener)
       player.release() // Release player
 
-      // DodoStream fork: invalidate in-flight media info loads
+      // DodoStream fork: invalidate in-flight media info loads and restore display mode
       mediaInfoLoadGeneration++
       statisticsListener?.let { player.removeAnalyticsListener(it) }
       statisticsListener = null
       extractedMediaInfo = null
+      displayModeHelper.release()
       mediaInfoExecutor.shutdown()
 
       // Clean Listeners
@@ -568,11 +577,11 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
     }
   }
 
-  // MARK: - Media info extraction (chapters) + statistics fallback
+  // MARK: - Media info extraction (chapters) + display mode (AFR)
 
   /**
-   * Loads media info (if needed). This is the single entry point for
-   * chapters/media-info extraction.
+   * Loads media info (if needed) and applies the appropriate display mode.
+   * This is the single entry point for display mode changes.
    *
    * @param format The video format from ExoPlayer (may have incomplete framerate info)
    */
@@ -580,7 +589,11 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
     // Start async media info loading if needed
     if (shouldLoadMediaInfo()) {
       startMediaInfoLoading(format)
+      return
     }
+
+    // Apply display mode synchronously if media info already available
+    applyDisplayModeSync(format)
   }
 
   private fun shouldLoadMediaInfo(): Boolean {
@@ -608,9 +621,75 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
       statisticsListener?.setExtractedMediaInfo(mediaInfo)
 
       emitChaptersIfAvailable(mediaInfo)
+      applyDisplayModeFromMediaInfo(mediaInfo, format)
     } else {
       Log.w(TAG, "Failed to load media info")
+      applyDisplayModeFromFormat(format, "MediaInfo loading failed")
     }
+  }
+
+  private fun applyDisplayModeFromMediaInfo(mediaInfo: MediaInfo, format: Format?) {
+    if (source.config.matchFrameRate != true) {
+      return
+    }
+
+    if (mediaInfo.frameRate > 0) {
+      val width = getWidthFromFormatOrMediaInfo(format, mediaInfo)
+      val height = getHeightFromFormatOrMediaInfo(format, mediaInfo)
+
+      Log.d(
+        TAG,
+        "Applying display mode from MediaInfo: " + width + "x" + height + "@" + mediaInfo.frameRate + "fps"
+      )
+      displayModeHelper.setDisplayMode(mediaInfo.frameRate, width, height)
+    } else {
+      // MediaInfo has no framerate, fallback to format
+      applyDisplayModeFromFormat(format, "MediaInfo has no framerate")
+    }
+  }
+
+  private fun applyDisplayModeFromFormat(format: Format?, reason: String) {
+    if (source.config.matchFrameRate != true || !isFormatValid(format)) {
+      return
+    }
+
+    Log.d(TAG, reason + ", using ExoPlayer format for display mode: " + format!!.width + "x" + format.height + "@" + format.frameRate + "fps")
+    displayModeHelper.setDisplayMode(format.frameRate, format.width, format.height)
+  }
+
+  private fun applyDisplayModeSync(format: Format?) {
+    if (source.config.matchFrameRate != true) {
+      Log.d(TAG, "Frame-rate matching is disabled")
+      return
+    }
+
+    val mediaInfo = extractedMediaInfo
+    if (mediaInfo != null && mediaInfo.frameRate > 0) {
+      val width = getWidthFromFormatOrMediaInfo(format, mediaInfo)
+      val height = getHeightFromFormatOrMediaInfo(format, mediaInfo)
+
+      Log.d(TAG, "Using extracted MediaInfo for display mode: " + width + "x" + height + "@" + mediaInfo.frameRate + "fps")
+      displayModeHelper.setDisplayMode(mediaInfo.frameRate, width, height)
+    } else if (isFormatValid(format)) {
+      Log.d(TAG, "Using ExoPlayer format as fallback for display mode: " + format!!.width + "x" + format.height + "@" + format.frameRate + "fps")
+      displayModeHelper.setDisplayMode(format.frameRate, format.width, format.height)
+    }
+  }
+
+  private fun isFormatValid(format: Format?): Boolean {
+    return format != null && format.frameRate > 0 && format.width > 0 && format.height > 0
+  }
+
+  private fun getWidthFromFormatOrMediaInfo(format: Format?, mediaInfo: MediaInfo): Int {
+    return if (format != null && format.width > 0) format.width else mediaInfo.videoWidth.toInt()
+  }
+
+  private fun getHeightFromFormatOrMediaInfo(format: Format?, mediaInfo: MediaInfo): Int {
+    return if (format != null && format.height > 0) format.height else mediaInfo.videoHeight.toInt()
+  }
+
+  private fun currentActivity(): Activity? {
+    return (context as? ReactApplicationContext)?.currentActivity
   }
 
   private fun emitChaptersIfAvailable(mediaInfo: MediaInfo) {
