@@ -22,16 +22,28 @@ class RNVLoadControl(
   private val context: Context,
 ) : DefaultLoadControl(
     allocator,
-    config?.minBufferMs?.toInt() ?: DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
-    config?.maxBufferMs?.toInt() ?: DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
-    config?.bufferForPlaybackMs?.toInt()
+    /* minBufferMs = */ config?.minBufferMs?.toInt() ?: DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
+    /* minBufferForLocalPlaybackMs = */ config?.minBufferMs?.toInt()
+      ?: DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
+    /* maxBufferMs = */ config?.maxBufferMs?.toInt() ?: DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
+    /* maxBufferForLocalPlaybackMs = */ config?.maxBufferMs?.toInt()
+      ?: DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
+    /* bufferForPlaybackMs = */ config?.bufferForPlaybackMs?.toInt()
       ?: DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS,
-    config?.bufferForPlaybackAfterRebufferMs?.toInt()
+    /* bufferForPlaybackForLocalPlaybackMs = */ config?.bufferForPlaybackMs?.toInt()
+      ?: DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS,
+    /* bufferForPlaybackAfterRebufferMs = */ config?.bufferForPlaybackAfterRebufferMs?.toInt()
+      ?: DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
+    /* bufferForPlaybackAfterRebufferForLocalPlaybackMs = */ config
+      ?.bufferForPlaybackAfterRebufferMs
+      ?.toInt()
       ?: DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
     /* targetBufferBytes = */ -1,
     /* prioritizeTimeOverSizeThresholds = */ true,
+    /* prioritizeTimeOverSizeThresholdsForLocalPlayback = */ true,
     config?.backBufferDurationMs?.toInt() ?: DefaultLoadControl.DEFAULT_BACK_BUFFER_DURATION_MS,
     DefaultLoadControl.DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME,
+    /* playerTargetBufferBytes = */ emptyMap(),
   ) {
 
   private val runtime = Runtime.getRuntime()
@@ -54,7 +66,7 @@ class RNVLoadControl(
     if (dependsOnMemory) {
       // The goal of this algorithm is to pause video loading (increasing the buffer)
       // when available memory on device become low.
-      val loadedBytes = getAllocator().totalBytesAllocated
+      val loadedBytes = getAllocator(parameters.playerId).totalBytesAllocated
       val isHeapReached = loadedBytes >= availableHeapInBytes
       if (isHeapReached) {
         return false

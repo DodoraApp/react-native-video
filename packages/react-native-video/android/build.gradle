@@ -242,8 +242,8 @@ dependencies {
 
   // DodoStream fork: FFmpeg software decoding (media3ext) and FFmpeg-based
   // media info extraction (chapters, frame rate, HDR) via nextlib.
-  implementation("io.github.anilbeesetti:nextlib-media3ext:1.8.0-0.9.0")
-  implementation("io.github.anilbeesetti:nextlib-mediainfo:1.8.0-0.9.0")
+  implementation("io.github.anilbeesetti:nextlib-media3ext:1.10.1-0.13.0")
+  implementation("io.github.anilbeesetti:nextlib-mediainfo:1.10.1-0.13.0")
 }
 
 if (isNewArchitectureEnabled()) {
