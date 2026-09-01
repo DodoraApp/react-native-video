@@ -42,6 +42,9 @@ namespace margelo::nitro::video {
     static jni::alias_ref<JSubtitleType> fromCpp(SubtitleType value) {
       static const auto clazz = javaClassStatic();
       switch (value) {
+        case SubtitleType::AUTO:
+          static const auto fieldAUTO = clazz->getStaticField<JSubtitleType>("AUTO");
+          return clazz->getStaticFieldValue(fieldAUTO);
         case SubtitleType::VTT:
           static const auto fieldVTT = clazz->getStaticField<JSubtitleType>("VTT");
           return clazz->getStaticFieldValue(fieldVTT);
@@ -54,9 +57,6 @@ namespace margelo::nitro::video {
         case SubtitleType::ASS:
           static const auto fieldASS = clazz->getStaticField<JSubtitleType>("ASS");
           return clazz->getStaticFieldValue(fieldASS);
-        case SubtitleType::AUTO:
-          static const auto fieldAUTO = clazz->getStaticField<JSubtitleType>("AUTO");
-          return clazz->getStaticFieldValue(fieldAUTO);
         default:
           std::string stringValue = std::to_string(static_cast<int>(value));
           throw std::invalid_argument("Invalid enum value (" + stringValue + "!");

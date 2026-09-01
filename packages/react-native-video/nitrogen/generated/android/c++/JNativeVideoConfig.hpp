@@ -81,6 +81,8 @@ namespace margelo::nitro::video {
       jni::local_ref<jni::JBoolean> reportStatistics = this->getFieldValue(fieldReportStatistics);
       static const auto fieldMatchFrameRate = clazz->getField<jni::JBoolean>("matchFrameRate");
       jni::local_ref<jni::JBoolean> matchFrameRate = this->getFieldValue(fieldMatchFrameRate);
+      static const auto fieldEnableDynamicScheduling = clazz->getField<jni::JBoolean>("enableDynamicScheduling");
+      jni::local_ref<jni::JBoolean> enableDynamicScheduling = this->getFieldValue(fieldEnableDynamicScheduling);
       return NativeVideoConfig(
         uri->toStdString(),
         externalSubtitles != nullptr ? std::make_optional([&]() {
@@ -110,7 +112,8 @@ namespace margelo::nitro::video {
         enableWorkarounds != nullptr ? std::make_optional(static_cast<bool>(enableWorkarounds->value())) : std::nullopt,
         enableVideoSoftwareDecoding != nullptr ? std::make_optional(static_cast<bool>(enableVideoSoftwareDecoding->value())) : std::nullopt,
         reportStatistics != nullptr ? std::make_optional(static_cast<bool>(reportStatistics->value())) : std::nullopt,
-        matchFrameRate != nullptr ? std::make_optional(static_cast<bool>(matchFrameRate->value())) : std::nullopt
+        matchFrameRate != nullptr ? std::make_optional(static_cast<bool>(matchFrameRate->value())) : std::nullopt,
+        enableDynamicScheduling != nullptr ? std::make_optional(static_cast<bool>(enableDynamicScheduling->value())) : std::nullopt
       );
     }
 
@@ -120,7 +123,7 @@ namespace margelo::nitro::video {
      */
     [[maybe_unused]]
     static jni::local_ref<JNativeVideoConfig::javaobject> fromCpp(const NativeVideoConfig& value) {
-      using JSignature = JNativeVideoConfig(jni::alias_ref<jni::JString>, jni::alias_ref<jni::JArrayClass<JNativeExternalSubtitle>>, jni::alias_ref<JNativeDrmParams>, jni::alias_ref<jni::JMap<jni::JString, jni::JString>>, jni::alias_ref<JBufferConfig>, jni::alias_ref<JCustomVideoMetadata>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>);
+      using JSignature = JNativeVideoConfig(jni::alias_ref<jni::JString>, jni::alias_ref<jni::JArrayClass<JNativeExternalSubtitle>>, jni::alias_ref<JNativeDrmParams>, jni::alias_ref<jni::JMap<jni::JString, jni::JString>>, jni::alias_ref<JBufferConfig>, jni::alias_ref<JCustomVideoMetadata>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
@@ -152,7 +155,8 @@ namespace margelo::nitro::video {
         value.enableWorkarounds.has_value() ? jni::JBoolean::valueOf(value.enableWorkarounds.value()) : nullptr,
         value.enableVideoSoftwareDecoding.has_value() ? jni::JBoolean::valueOf(value.enableVideoSoftwareDecoding.value()) : nullptr,
         value.reportStatistics.has_value() ? jni::JBoolean::valueOf(value.reportStatistics.value()) : nullptr,
-        value.matchFrameRate.has_value() ? jni::JBoolean::valueOf(value.matchFrameRate.value()) : nullptr
+        value.matchFrameRate.has_value() ? jni::JBoolean::valueOf(value.matchFrameRate.value()) : nullptr,
+        value.enableDynamicScheduling.has_value() ? jni::JBoolean::valueOf(value.enableDynamicScheduling.value()) : nullptr
       );
     }
   };

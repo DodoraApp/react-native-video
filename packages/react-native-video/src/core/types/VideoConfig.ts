@@ -107,6 +107,21 @@ export type VideoConfig = {
    * @platform android
    */
   matchFrameRate?: boolean;
+  /**
+   * Enables ExoPlayer dynamic scheduling with the video renderer reporting
+   * its duration-to-progress, so the player only wakes the CPU when frame
+   * progress can actually be made. Reduces power consumption and CPU idle
+   * time, which is especially beneficial on low-end devices.
+   *
+   * Wraps the experimental media3 APIs
+   * `ExoPlayer.Builder.experimentalSetDynamicSchedulingEnabled` and
+   * `DefaultRenderersFactory.setEnableMediaCodecVideoRendererDurationToProgressUs`
+   * (requires asynchronous codec queueing, which this library always enables).
+   *
+   * @default false
+   * @platform android
+   */
+  enableDynamicScheduling?: boolean;
 };
 
 // @internal

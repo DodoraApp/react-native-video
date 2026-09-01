@@ -40,7 +40,7 @@ describe('createSourceFromVideoConfig (fork source options)', () => {
     jest.clearAllMocks();
   });
 
-  it('forwards the six custom playback options to the native factory', () => {
+  it('forwards the seven custom playback options to the native factory', () => {
     createSourceFromVideoConfig({
       ...SOURCE,
       tunneled: true,
@@ -49,6 +49,7 @@ describe('createSourceFromVideoConfig (fork source options)', () => {
       enableVideoSoftwareDecoding: true,
       reportStatistics: true,
       matchFrameRate: true,
+      enableDynamicScheduling: true,
     });
 
     expect(nativeFactory.fromVideoConfig).toHaveBeenCalledWith(
@@ -59,6 +60,7 @@ describe('createSourceFromVideoConfig (fork source options)', () => {
         enableVideoSoftwareDecoding: true,
         reportStatistics: true,
         matchFrameRate: true,
+        enableDynamicScheduling: true,
       })
     );
   });
@@ -76,6 +78,7 @@ describe('createSourceFromVideoConfig (fork source options)', () => {
     expect(sentConfig).not.toHaveProperty('enableVideoSoftwareDecoding');
     expect(sentConfig).not.toHaveProperty('reportStatistics');
     expect(sentConfig).not.toHaveProperty('matchFrameRate');
+    expect(sentConfig).not.toHaveProperty('enableDynamicScheduling');
   });
 
   it('forwards the memory-cap buffer config fields', () => {

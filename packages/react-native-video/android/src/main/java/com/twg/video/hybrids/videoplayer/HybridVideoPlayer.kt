@@ -242,12 +242,18 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
     allocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE)
 
     // Build the player with the LoadControl
-    player = ExoPlayer.Builder(context)
+    val playerBuilder = ExoPlayer.Builder(context)
       .setLoadControl(buildLoadControl(config))
       .setLooper(Looper.getMainLooper())
       .setRenderersFactory(buildRenderersFactory(config))
       .setTrackSelector(buildTrackSelector(config))
-      .build()
+
+    // Dynamic scheduling (DodoStream fork): align CPU wake-ups with frame progress
+    if (config.enableDynamicScheduling == true) {
+      playerBuilder.experimentalSetDynamicSchedulingEnabled(true)
+    }
+
+    player = playerBuilder.build()
 
     enableLegacyTextDecoding()
 
@@ -345,7 +351,7 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
    * software-decoding toggle (DodoStream fork).
    */
   private fun buildRenderersFactory(config: NativeVideoConfig): DefaultRenderersFactory {
-    return RNVVideoRenderersFactory(
+    val renderersFactory = RNVVideoRenderersFactory(
       context,
       config.enableWorkarounds == true,
       config.enableVideoSoftwareDecoding == true
@@ -353,6 +359,14 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
       .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
       .setEnableDecoderFallback(true)
       .forceEnableMediaCodecAsynchronousQueueing()
+
+    // Dynamic scheduling (DodoStream fork): let the video renderer report its
+    // duration-to-progress so the player only wakes the CPU when progress is possible.
+    if (config.enableDynamicScheduling == true) {
+      renderersFactory.setEnableMediaCodecVideoRendererDurationToProgressUs(true)
+    }
+
+    return renderersFactory
   }
 
   private fun ensureNotReleased() {

@@ -15,6 +15,8 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
+#include "JHybridVideoPlayerSpec.hpp"
+#include "JHybridVideoPlayerFactorySpec.hpp"
 #include "JHybridVideoPlayerEventEmitterSpec.hpp"
 #include "JFunc_void.hpp"
 #include "JFunc_void_bool.hpp"
@@ -33,8 +35,6 @@
 #include "JFunc_void_onVolumeChangeData.hpp"
 #include "JFunc_void_onChaptersData.hpp"
 #include "JFunc_void_VideoStatisticsData.hpp"
-#include "JHybridVideoPlayerSpec.hpp"
-#include "JHybridVideoPlayerFactorySpec.hpp"
 #include "JHybridVideoPlayerSourceSpec.hpp"
 #include "JHybridVideoPlayerSourceFactorySpec.hpp"
 #include "JHybridVideoViewViewManagerSpec.hpp"
@@ -79,6 +79,8 @@ void registerAllNatives() {
   using namespace margelo::nitro::video;
 
   // Register native JNI methods
+  margelo::nitro::video::JHybridVideoPlayerSpec::CxxPart::registerNatives();
+  margelo::nitro::video::JHybridVideoPlayerFactorySpec::CxxPart::registerNatives();
   margelo::nitro::video::JHybridVideoPlayerEventEmitterSpec::CxxPart::registerNatives();
   margelo::nitro::video::JFunc_void_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_bool_cxx::registerNatives();
@@ -97,8 +99,6 @@ void registerAllNatives() {
   margelo::nitro::video::JFunc_void_onVolumeChangeData_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_onChaptersData_cxx::registerNatives();
   margelo::nitro::video::JFunc_void_VideoStatisticsData_cxx::registerNatives();
-  margelo::nitro::video::JHybridVideoPlayerSpec::CxxPart::registerNatives();
-  margelo::nitro::video::JHybridVideoPlayerFactorySpec::CxxPart::registerNatives();
   margelo::nitro::video::JHybridVideoPlayerSourceSpec::CxxPart::registerNatives();
   margelo::nitro::video::JHybridVideoPlayerSourceFactorySpec::CxxPart::registerNatives();
   margelo::nitro::video::JHybridVideoViewViewManagerSpec::CxxPart::registerNatives();

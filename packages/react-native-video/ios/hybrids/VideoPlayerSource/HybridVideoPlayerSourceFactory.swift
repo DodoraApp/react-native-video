@@ -28,7 +28,8 @@ class HybridVideoPlayerSourceFactory: HybridVideoPlayerSourceFactorySpec {
       enableWorkarounds: nil,
       enableVideoSoftwareDecoding: nil,
       reportStatistics: nil,
-      matchFrameRate: nil
+      matchFrameRate: nil,
+      enableDynamicScheduling: nil
     )
     return try HybridVideoPlayerSource(config: config)
   }

@@ -17,14 +17,14 @@ public extension MixAudioMode {
    */
   init?(fromString string: String) {
     switch string {
-      case "auto":
-        self = .auto
       case "mixWithOthers":
         self = .mixwithothers
       case "doNotMix":
         self = .donotmix
       case "duckOthers":
         self = .duckothers
+      case "auto":
+        self = .auto
       default:
         return nil
     }
@@ -35,14 +35,14 @@ public extension MixAudioMode {
    */
   var stringValue: String {
     switch self {
-      case .auto:
-        return "auto"
       case .mixwithothers:
         return "mixWithOthers"
       case .donotmix:
         return "doNotMix"
       case .duckothers:
         return "duckOthers"
+      case .auto:
+        return "auto"
     }
   }
 }

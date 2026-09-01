@@ -17,6 +17,8 @@ public extension SubtitleType {
    */
   init?(fromString string: String) {
     switch string {
+      case "auto":
+        self = .auto
       case "vtt":
         self = .vtt
       case "srt":
@@ -25,8 +27,6 @@ public extension SubtitleType {
         self = .ssa
       case "ass":
         self = .ass
-      case "auto":
-        self = .auto
       default:
         return nil
     }
@@ -37,6 +37,8 @@ public extension SubtitleType {
    */
   var stringValue: String {
     switch self {
+      case .auto:
+        return "auto"
       case .vtt:
         return "vtt"
       case .srt:
@@ -45,8 +47,6 @@ public extension SubtitleType {
         return "ssa"
       case .ass:
         return "ass"
-      case .auto:
-        return "auto"
     }
   }
 }

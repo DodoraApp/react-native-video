@@ -49,7 +49,8 @@ class HybridVideoPlayerSourceFactory: HybridVideoPlayerSourceFactorySpec() {
       enableWorkarounds = null,
       enableVideoSoftwareDecoding = null,
       reportStatistics = null,
-      matchFrameRate = null
+      matchFrameRate = null,
+      enableDynamicScheduling = null
     )
 
     return HybridVideoPlayerSource(config)

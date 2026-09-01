@@ -18,7 +18,7 @@ public extension NativeVideoConfig {
   /**
    * Create a new instance of `NativeVideoConfig`.
    */
-  init(uri: String, externalSubtitles: [NativeExternalSubtitle]?, drm: NativeDrmParams?, headers: Dictionary<String, String>?, bufferConfig: BufferConfig?, metadata: CustomVideoMetadata?, initializeOnCreation: Bool?, tunneled: Bool?, audioPassthrough: Bool?, enableWorkarounds: Bool?, enableVideoSoftwareDecoding: Bool?, reportStatistics: Bool?, matchFrameRate: Bool?) {
+  init(uri: String, externalSubtitles: [NativeExternalSubtitle]?, drm: NativeDrmParams?, headers: Dictionary<String, String>?, bufferConfig: BufferConfig?, metadata: CustomVideoMetadata?, initializeOnCreation: Bool?, tunneled: Bool?, audioPassthrough: Bool?, enableWorkarounds: Bool?, enableVideoSoftwareDecoding: Bool?, reportStatistics: Bool?, matchFrameRate: Bool?, enableDynamicScheduling: Bool?) {
     self.init(std.string(uri), { () -> bridge.std__optional_std__vector_NativeExternalSubtitle__ in
       if let __unwrappedValue = externalSubtitles {
         return bridge.create_std__optional_std__vector_NativeExternalSubtitle__({ () -> bridge.std__vector_NativeExternalSubtitle_ in
@@ -99,6 +99,12 @@ public extension NativeVideoConfig {
       }
     }(), { () -> bridge.std__optional_bool_ in
       if let __unwrappedValue = matchFrameRate {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = enableDynamicScheduling {
         return bridge.create_std__optional_bool_(__unwrappedValue)
       } else {
         return .init()
@@ -235,6 +241,18 @@ public extension NativeVideoConfig {
     return { () -> Bool? in
       if bridge.has_value_std__optional_bool_(self.__matchFrameRate) {
         let __unwrapped = bridge.get_std__optional_bool_(self.__matchFrameRate)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var enableDynamicScheduling: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__enableDynamicScheduling) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__enableDynamicScheduling)
         return __unwrapped
       } else {
         return nil
