@@ -4,7 +4,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.MainThread
+import androidx.core.net.toUri
 import androidx.media3.common.C
+import androidx.media3.common.Format
 import androidx.media3.common.Metadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
@@ -14,6 +16,8 @@ import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.Tracks
 import androidx.media3.common.text.CueGroup
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.util.Util
+import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
@@ -27,7 +31,11 @@ import androidx.media3.ui.PlayerView
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.NitroModules
 import com.margelo.nitro.core.Promise
+import com.twg.video.core.player.MediaInfo
+import com.twg.video.core.player.MediaInfoLoader
+import com.twg.video.core.player.RNVPlayerStatisticsListener
 import com.twg.video.core.player.RNVVideoRenderersFactory
+import java.util.concurrent.Executors
 import com.twg.video.core.LibraryError
 import com.twg.video.core.PlayerError
 import com.twg.video.core.VideoManager
@@ -104,6 +112,12 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
 
   // Text track selection state
   private var selectedExternalTrackIndex: Int? = null
+
+  // DodoStream fork: playback statistics and chapters/media-info extraction
+  private var statisticsListener: RNVPlayerStatisticsListener? = null
+  private var extractedMediaInfo: MediaInfo? = null
+  private var mediaInfoLoadGeneration = 0
+  private val mediaInfoExecutor = Executors.newSingleThreadExecutor()
 
   private companion object {
     const val PROGRESS_UPDATE_INTERVAL_MS = 250L
@@ -259,6 +273,16 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
 
     player.addListener(playerListener)
     player.addAnalyticsListener(analyticsListener)
+
+    // Playback statistics (DodoStream fork)
+    extractedMediaInfo = null
+    mediaInfoLoadGeneration++
+    val statsListener = RNVPlayerStatisticsListener(eventEmitter)
+    statsListener.setEnabled(config.reportStatistics == true)
+    statsListener.setStreamType(streamTypeFromUri(hybridSource.uri))
+    statisticsListener = statsListener
+    player.addAnalyticsListener(statsListener)
+
     player.setMediaSource(hybridSource.mediaSource)
     ensureNotReleased()
 
@@ -396,6 +420,12 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
         player.setMediaSource(hybridSource.mediaSource)
         ensureNotReleased()
 
+        // DodoStream fork: stats/chapters are per-source
+        extractedMediaInfo = null
+        mediaInfoLoadGeneration++
+        statisticsListener?.reset()
+        statisticsListener?.setStreamType(streamTypeFromUri(hybridSource.uri))
+
         player.prepare()
         ensureNotReleased()
       }
@@ -444,6 +474,13 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
       player.removeListener(playerListener)
       player.removeAnalyticsListener(analyticsListener)
       player.release() // Release player
+
+      // DodoStream fork: invalidate in-flight media info loads
+      mediaInfoLoadGeneration++
+      statisticsListener?.let { player.removeAnalyticsListener(it) }
+      statisticsListener = null
+      extractedMediaInfo = null
+      mediaInfoExecutor.shutdown()
 
       // Clean Listeners
       audioFocusChangedListener.removeEventEmitter()
@@ -518,6 +555,89 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
           height = if (videoFormat != null) videoFormat.height.toDouble() else null
         )
       )
+    }
+
+    override fun onVideoInputFormatChanged(
+      eventTime: AnalyticsListener.EventTime,
+      format: Format,
+      decoderReuseEvaluation: DecoderReuseEvaluation?
+    ) {
+      // Called when the decoder starts receiving video data and the format is fully known.
+      // Single entry point for chapters/media-info extraction.
+      loadMediaInfoAndApplyDisplayMode(format)
+    }
+  }
+
+  // MARK: - Media info extraction (chapters) + statistics fallback
+
+  /**
+   * Loads media info (if needed). This is the single entry point for
+   * chapters/media-info extraction.
+   *
+   * @param format The video format from ExoPlayer (may have incomplete framerate info)
+   */
+  private fun loadMediaInfoAndApplyDisplayMode(format: Format?) {
+    // Start async media info loading if needed
+    if (shouldLoadMediaInfo()) {
+      startMediaInfoLoading(format)
+    }
+  }
+
+  private fun shouldLoadMediaInfo(): Boolean {
+    return extractedMediaInfo == null && MediaInfoLoader.isExtractionSupported(source.uri)
+  }
+
+  private fun startMediaInfoLoading(format: Format?) {
+    val uri = source.uri
+    Log.d(TAG, "Loading media info for chapters and metadata extraction")
+    val generation = ++mediaInfoLoadGeneration
+    mediaInfoExecutor.execute {
+      val mediaInfo = MediaInfoLoader.loadMediaInfo(uri)
+      runOnMainThread {
+        if (generation == mediaInfoLoadGeneration && !releaseStarted.get()) {
+          handleMediaInfoLoaded(mediaInfo, format)
+        }
+      }
+    }
+  }
+
+  private fun handleMediaInfoLoaded(mediaInfo: MediaInfo?, format: Format?) {
+    if (mediaInfo != null) {
+      extractedMediaInfo = mediaInfo
+
+      statisticsListener?.setExtractedMediaInfo(mediaInfo)
+
+      emitChaptersIfAvailable(mediaInfo)
+    } else {
+      Log.w(TAG, "Failed to load media info")
+    }
+  }
+
+  private fun emitChaptersIfAvailable(mediaInfo: MediaInfo) {
+    if (mediaInfo.chapters.isEmpty()) {
+      return
+    }
+    Log.d(TAG, "Emitting chapters event with ${mediaInfo.chapters.size} chapters")
+    val chapters = mediaInfo.chapters.map { chapter ->
+      Chapter(
+        title = chapter.title,
+        startTime = chapter.startMs / 1000.0,
+        endTime = chapter.endMs / 1000.0,
+        type = ChapterType.valueOf(chapter.type.name)
+      )
+    }.toTypedArray()
+    eventEmitter.onChapters(onChaptersData(chapters = chapters))
+  }
+
+  private fun streamTypeFromUri(uri: String): String {
+    val type = Util.inferContentType(uri.toUri())
+    return when (type) {
+      C.CONTENT_TYPE_DASH -> "DASH"
+      C.CONTENT_TYPE_HLS -> "HLS"
+      C.CONTENT_TYPE_SS -> "SmoothStreaming"
+      C.CONTENT_TYPE_RTSP -> "RTSP"
+      C.CONTENT_TYPE_OTHER -> "Progressive"
+      else -> "Unknown"
     }
   }
 

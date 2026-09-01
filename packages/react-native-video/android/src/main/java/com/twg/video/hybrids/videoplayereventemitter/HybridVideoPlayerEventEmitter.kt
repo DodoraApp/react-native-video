@@ -180,6 +180,12 @@ class HybridVideoPlayerEventEmitter : HybridVideoPlayerEventEmitterSpec() {
   fun onStatusChange(status: VideoPlayerStatus) =
     emitEvent<(VideoPlayerStatus) -> Unit>("onStatusChange") { it(status) }
 
+  fun onChapters(data: onChaptersData) =
+    emitEvent<(onChaptersData) -> Unit>("onChapters") { it(data) }
+
+  fun onVideoStatistics(data: VideoStatisticsData) =
+    emitEvent<(VideoStatisticsData) -> Unit>("onVideoStatistics") { it(data) }
+
   companion object {
     const val TAG = "HybridVideoPlayerEventEmitter"
   }
