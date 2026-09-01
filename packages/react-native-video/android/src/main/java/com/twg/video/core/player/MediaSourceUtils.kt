@@ -15,6 +15,7 @@ import androidx.media3.exoplayer.drm.DrmSessionManager
 import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MergingMediaSource
+import androidx.media3.extractor.DefaultExtractorsFactory
 import com.margelo.nitro.video.HybridVideoPlayerSource
 import com.twg.video.core.LibraryError
 import com.twg.video.core.SourceError
@@ -46,7 +47,13 @@ fun buildMediaSource(context: Context, source: HybridVideoPlayerSource, mediaIte
       HlsMediaSource.Factory(dataSourceFactory)
     }
     C.CONTENT_TYPE_OTHER -> {
-      DefaultMediaSourceFactory(context)
+      // Emit raw subtitle samples instead of transcoding image-based (PGS/DVD)
+      // subtitles to full-resolution bitmaps at extraction time (DodoStream fork).
+      // Selected tracks are decoded per-cue at render time by the legacy decoder.
+      DefaultMediaSourceFactory(
+        context,
+        DefaultExtractorsFactory().experimentalSetTextTrackTranscodingEnabled(false)
+      )
         .setDataSourceFactory(dataSourceFactory)
     }
     else -> {

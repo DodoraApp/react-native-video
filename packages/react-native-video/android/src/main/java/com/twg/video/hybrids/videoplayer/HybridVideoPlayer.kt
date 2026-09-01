@@ -22,7 +22,9 @@ import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.LoadControl
 import androidx.media3.exoplayer.analytics.AnalyticsListener
+import androidx.media3.exoplayer.text.TextRenderer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.media3.extractor.metadata.emsg.EventMessage
@@ -36,6 +38,7 @@ import com.margelo.nitro.core.Promise
 import com.twg.video.core.player.DisplayModeHelper
 import com.twg.video.core.player.MediaInfo
 import com.twg.video.core.player.MediaInfoLoader
+import com.twg.video.core.player.RNVLoadControl
 import com.twg.video.core.player.RNVPlayerStatisticsListener
 import com.twg.video.core.player.RNVVideoRenderersFactory
 import java.util.concurrent.Executors
@@ -98,10 +101,6 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
 
   var wasAutoPaused = false
 
-  // Buffer Config
-  private var bufferConfig: BufferConfig? = null
-    get() = source.config.bufferConfig
-
   // Time updates
   private val progressHandler = Handler(Looper.getMainLooper())
   private var progressRunnable: Runnable? = null
@@ -126,11 +125,6 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
   private companion object {
     const val PROGRESS_UPDATE_INTERVAL_MS = 250L
     private const val TAG = "HybridVideoPlayer"
-    private const val DEFAULT_MIN_BUFFER_DURATION_MS = 5000
-    private const val DEFAULT_MAX_BUFFER_DURATION_MS = 10000
-    private const val DEFAULT_BUFFER_FOR_PLAYBACK_DURATION_MS = 1000
-    private const val DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_DURATION_MS = 2000
-    private const val DEFAULT_BACK_BUFFER_DURATION_MS = 0
   }
 
   override var status: VideoPlayerStatus = VideoPlayerStatus.IDLE
@@ -247,31 +241,15 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
     // Initialize the allocator
     allocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE)
 
-    // Create a LoadControl with the allocator
-    val loadControl = DefaultLoadControl.Builder()
-      .setAllocator(allocator!!)
-      .setBufferDurationsMs(
-        bufferConfig?.minBufferMs?.toInt() ?: DEFAULT_MIN_BUFFER_DURATION_MS, // minBufferMs
-        bufferConfig?.maxBufferMs?.toInt() ?: DEFAULT_MAX_BUFFER_DURATION_MS, // maxBufferMs
-        bufferConfig?.bufferForPlaybackMs?.toInt()
-          ?: DEFAULT_BUFFER_FOR_PLAYBACK_DURATION_MS, // bufferForPlaybackMs
-        bufferConfig?.bufferForPlaybackAfterRebufferMs?.toInt()
-          ?: DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_DURATION_MS // bufferForPlaybackAfterRebufferMs
-      )
-      .setBackBuffer(
-        bufferConfig?.backBufferDurationMs?.toInt()
-          ?: DEFAULT_BACK_BUFFER_DURATION_MS, // backBufferDurationMs,
-        false // retainBackBufferFromKeyframe
-      )
-      .build()
-
     // Build the player with the LoadControl
     player = ExoPlayer.Builder(context)
-      .setLoadControl(loadControl)
+      .setLoadControl(buildLoadControl(config))
       .setLooper(Looper.getMainLooper())
       .setRenderersFactory(buildRenderersFactory(config))
       .setTrackSelector(buildTrackSelector(config))
       .build()
+
+    enableLegacyTextDecoding()
 
     loadedWithSource = true
 
@@ -304,6 +282,27 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
     status = VideoPlayerStatus.LOADING
     ensureNotReleased()
     startProgressUpdates()
+  }
+
+  /**
+   * Memory-aware LoadControl (DodoStream fork): maxHeapAllocationPercent /
+   * minBufferMemoryReservePercent from the buffer config.
+   */
+  private fun buildLoadControl(config: NativeVideoConfig): LoadControl {
+    return RNVLoadControl(allocator!!, config.bufferConfig, context)
+  }
+
+  /**
+   * Emit raw subtitle samples instead of transcoding image-based (PGS/DVD) subtitles
+   * to bitmaps at extraction time (DodoStream fork memory fix). With legacy decoding
+   * enabled, selected tracks are decoded per-cue at render time.
+   */
+  private fun enableLegacyTextDecoding() {
+    for (i in 0 until player.rendererCount) {
+      if (player.getRendererType(i) == C.TRACK_TYPE_TEXT) {
+        (player.getRenderer(i) as? TextRenderer)?.experimentalSetLegacyDecodingEnabled(true)
+      }
+    }
   }
 
   /**
