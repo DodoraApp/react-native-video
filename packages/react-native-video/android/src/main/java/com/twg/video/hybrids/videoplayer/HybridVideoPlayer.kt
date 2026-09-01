@@ -6,9 +6,11 @@ import android.util.Log
 import androidx.annotation.MainThread
 import androidx.media3.common.C
 import androidx.media3.common.Metadata
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
+import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.Tracks
 import androidx.media3.common.text.CueGroup
 import androidx.media3.common.util.UnstableApi
@@ -16,6 +18,7 @@ import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.analytics.AnalyticsListener
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.media3.extractor.metadata.emsg.EventMessage
 import androidx.media3.extractor.metadata.id3.Id3Frame
@@ -24,6 +27,7 @@ import androidx.media3.ui.PlayerView
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.NitroModules
 import com.margelo.nitro.core.Promise
+import com.twg.video.core.player.RNVVideoRenderersFactory
 import com.twg.video.core.LibraryError
 import com.twg.video.core.PlayerError
 import com.twg.video.core.VideoManager
@@ -220,6 +224,7 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
     }
 
     val hybridSource = source as? HybridVideoPlayerSource ?: throw PlayerError.InvalidSource
+    val config = hybridSource.config
 
     // Initialize the allocator
     allocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE)
@@ -242,15 +247,12 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
       )
       .build()
 
-    val renderersFactory = DefaultRenderersFactory(context)
-      .forceEnableMediaCodecAsynchronousQueueing()
-      .setEnableDecoderFallback(true)
-
     // Build the player with the LoadControl
     player = ExoPlayer.Builder(context)
       .setLoadControl(loadControl)
       .setLooper(Looper.getMainLooper())
-      .setRenderersFactory(renderersFactory)
+      .setRenderersFactory(buildRenderersFactory(config))
+      .setTrackSelector(buildTrackSelector(config))
       .build()
 
     loadedWithSource = true
@@ -270,6 +272,56 @@ class HybridVideoPlayer() : HybridVideoPlayerSpec(), AutoCloseable {
     status = VideoPlayerStatus.LOADING
     ensureNotReleased()
     startProgressUpdates()
+  }
+
+  /**
+   * Track selector: tunnelled playback and audio passthrough (DodoStream fork).
+   */
+  private fun buildTrackSelector(config: NativeVideoConfig): DefaultTrackSelector {
+    return DefaultTrackSelector(context).apply {
+      val parametersBuilder = buildUponParameters()
+        .setTunnelingEnabled(config.tunneled == true)
+
+      if (config.audioPassthrough == true) {
+        // Configure preferred audio MIME types for passthrough formats
+        parametersBuilder.setPreferredAudioMimeTypes(
+          MimeTypes.AUDIO_TRUEHD,
+          MimeTypes.AUDIO_DTS_HD,
+          MimeTypes.AUDIO_DTS,
+          MimeTypes.AUDIO_E_AC3,
+          MimeTypes.AUDIO_AC3,
+          MimeTypes.AUDIO_AC4
+        )
+
+        // Enable audio offload for true passthrough/bitstreaming to external devices
+        parametersBuilder.setAudioOffloadPreferences(
+          TrackSelectionParameters.AudioOffloadPreferences.Builder()
+            .setAudioOffloadMode(
+              TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED
+            )
+            .setIsGaplessSupportRequired(false)
+            .setIsSpeedChangeSupportRequired(false)
+            .build()
+        )
+      }
+
+      parameters = parametersBuilder.build()
+    }
+  }
+
+  /**
+   * Renderers factory: FFmpeg software decoding (nextlib), DV-P7 workarounds,
+   * software-decoding toggle (DodoStream fork).
+   */
+  private fun buildRenderersFactory(config: NativeVideoConfig): DefaultRenderersFactory {
+    return RNVVideoRenderersFactory(
+      context,
+      config.enableWorkarounds == true,
+      config.enableVideoSoftwareDecoding == true
+    )
+      .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+      .setEnableDecoderFallback(true)
+      .forceEnableMediaCodecAsynchronousQueueing()
   }
 
   private fun ensureNotReleased() {
